@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package proto;
+
+service MusicPlayerService {
+  rpc UploadSong(SongRequest) returns (stream UploadSongResponse) {}
+  rpc GetSongs(None) returns (stream SongRequest) {}
+}
+
+message UploadSongResponse {
+  bytes song = 1;
+}
+
+message SongRequest {
+  string name = 1;
+}
+
+message None {}
