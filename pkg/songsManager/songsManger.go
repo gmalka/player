@@ -3,9 +3,6 @@ package songsManager
 import (
 	"errors"
 	"fmt"
-
-	"google.golang.org/genproto/googleapis/spanner/admin/database/v1"
-	"google.golang.org/grpc/credentials/local"
 )
 
 type Mp3FileManager interface {
@@ -22,10 +19,11 @@ type RemoteFileUploadService interface {
 
 type SongsManager interface {
 	Get(name string) ([]byte, error)
-	Add(name string) ([]byte, error)
-	GetNext() ([]byte, error)
-	GetPre() ([]byte, error)
+	Add(name string) error
+	Next() ([]byte, error)
+	Pre() ([]byte, error)
 	GetPlayList() []string
+	GetCurrent() string
 	Delete(name string) error
 	DeleteLocal(name string) error
 	SaveLocal(name string) error
@@ -51,6 +49,12 @@ func NewSongManager(f Mp3FileManager, r RemoteFileUploadService) SongsManager {
 }
 
 func (sm mySongsManager) Get(name string) ([]byte, error) {
+	if name == "" {
+		if sm.list == nil {
+			return nil, errors.New("No songs in playlist")
+		}
+		return sm.list.data, nil
+	}
 	result, err := sm.fileManager.Get(name)
 	if err == nil {
 		return result, nil
@@ -60,6 +64,35 @@ func (sm mySongsManager) Get(name string) ([]byte, error) {
 		return result, nil
 	}
 	return nil, err
+}
+
+func (sm mySongsManager) Add(name string) error {
+	_, err := sm.fileManager.Get(name)
+	if err == nil {
+		if sm.list == nil {
+			sm.list = &song{name:name, local: true}
+			sm.first = sm.list
+			sm.last = sm.list
+		} else {
+			sm.last.next = &song{name:name, local: true, pre: sm.last}
+			sm.last = sm.last.next
+		}
+		return nil
+	}
+	res, err := sm.rFileManager.Get(name)
+	if err == nil {
+		if sm.list == nil {
+			sm.list = &song{name:name, local: false, data: res}
+			sm.first = sm.list
+			sm.last = sm.list
+		} else {
+			sm.last.next = &song{name:name, local: false, pre: sm.last, data: res}
+			sm.last = sm.last.next
+		}
+		return err
+	}
+
+	return errors.New("Can't find the file")
 }
 
 func (sm mySongsManager) Next() ([]byte, error) {
@@ -86,6 +119,15 @@ func (sm mySongsManager) Pre() ([]byte, error) {
 	} else {
 		return sm.Get(result.name)
 	}
+}
+
+func (sm mySongsManager) GetPlayList() []string {
+	s := make([]string, 0, 10)
+	cur := sm.first
+	for ; cur != nil ; cur = cur.next {
+		s = append(s, cur.name)
+	}
+	return s
 }
 
 func (sm mySongsManager) Delete(name string) error {
@@ -140,40 +182,15 @@ func (sm mySongsManager) Delete(name string) error {
 	return nil
 }
 
-func (sm mySongsManager) Add(name string) error {
-	_, err := sm.fileManager.Get(name)
-	if err == nil {
-		if sm.list == nil {
-			sm.list = &song{name:name, local: true}
-			sm.first = sm.list
-			sm.last = sm.list
-		} else {
-			sm.last.next = &song{name:name, local: true, pre: sm.last}
-			sm.last = sm.last.next
-		}
-		return nil
-	}
-	res, err := sm.rFileManager.Get(name)
-	if err == nil {
-		if sm.list == nil {
-			sm.list = &song{name:name, local: false, data: res}
-			sm.first = sm.list
-			sm.last = sm.list
-		} else {
-			sm.last.next = &song{name:name, local: false, pre: sm.last, data: res}
-			sm.last = sm.last.next
-		}
-		return err
-	}
-
-	return errors.New("Can't find the file")
-}
 
 func (sm mySongsManager) DeleteLocal(name string) error {
 	return sm.fileManager.Delete(name)
 }
 
 func (sm mySongsManager) SaveLocal(name string) error {
+	if name == "" {
+		name = sm.list.name
+	}
 	cur := sm.first
 	for ; cur != nil && cur.name != name; cur = cur.next {
 	}
@@ -205,4 +222,8 @@ func (sm mySongsManager) GetAllLocal() []string {
 
 func (sm mySongsManager) GetAllRemote() ([]string, error) {
 	return sm.rFileManager.GetAll()
+}
+
+func (sm mySongsManager) GetCurrent() string {
+	return sm.list.name
 }

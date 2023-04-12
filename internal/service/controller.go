@@ -3,38 +3,43 @@ package service
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"fmt"
+	"log"
 	"os"
-
-	"github.com/hajimehoshi/go-mp3"
 )
 
-type Player interface {
+type player interface {
 	Play()
 	Pause()
-	NextSong()
-	PreSong()
-	Add(decorded *mp3.Decoder)
+	Stop()
+	Load(data []byte) error
+	IsPlaying() bool
 }
 
-type MusicFileManager interface {
-	Add(name string, input []byte) error
-	Open(name string) ([]byte, error)
-	GetAll() []string
+type songmanager interface {
+	Get(name string) ([]byte, error)
+	Add(name string) error
+	Next() ([]byte, error)
+	Pre() ([]byte, error)
+	GetCurrent() string
+	GetPlayList() []string
 	Delete(name string) error
+	DeleteLocal(name string) error
+	SaveLocal(name string) error
+	GetAllLocal() []string
+	GetAllRemote() ([]string, error)
 }
 
 type myController struct {
-	ctx		context.Context
-	Player
-	MusicFileManager
+	player player
+	songmanager songmanager
 }
 
-func NewController(ctx context.Context, MusicPlayer Player, musicFileManager MusicFileManager) myController {
-	return myController{ctx: ctx, Player: MusicPlayer, MusicFileManager: musicFileManager}
+func NewController(MusicPlayer player, musicFileManager songmanager) myController {
+	return myController{player: MusicPlayer, songmanager: musicFileManager}
 }
 
+//TODO: раскидать тела case по функциям
 func (c myController) Run() {
 	var (
 		command []byte
@@ -66,25 +71,147 @@ func (c myController) Run() {
 				fmt.Println("incorrect command")
 				continue
 			}
-			c.Player.Play()
-		case "next", "nextsong", "Next song", "Next Song", "Nextsong":
+			if c.player.IsPlaying() {
+				c.player.Play()
+			} else {
+				data, err := c.songmanager.Get("")
+				if err != nil {
+					log.Println(err)
+				} else {
+					c.player.Load(data)
+					c.player.Play()
+				}
+			}
+			c.player.Play()
+		case "next", "Next", "nextsong", "Nextsong", "NextSong":
 			if n != -1 {
 				fmt.Println("incorrect command")
 				continue
 			}
-			c.Player.NextSong()
-		case "pre", "presong", "Pre song", "Pre Song", "Presong":
+			data, err := c.songmanager.Pre()
+			if err != nil {
+				log.Println(err)
+			} else {
+				c.player.Load(data)
+				c.player.Play()
+			}
+		case "pre", "Pre", "presong", "Presong", "PreSong":
 			if n != -1 {
 				fmt.Println("incorrect command")
 				continue
 			}
-			c.Player.PreSong()
+			data, err := c.songmanager.Next()
+			if err != nil {
+				log.Println(err)
+			} else {
+				c.player.Load(data)
+				c.player.Play()
+			}
 		case "pause", "Pause", "stop", "Stop":
 			if n != -1 {
 				fmt.Println("incorrect command")
 				continue
 			}
-			c.Player.Pause()
+			c.player.Pause()
+		case "Save", "SaveLocal", "save", "savelcoal", "saveLocal":
+			if n == -1 {
+				err = c.songmanager.SaveLocal("")
+				if err != nil {
+					log.Println(err)
+				}
+			} else {
+				err = c.songmanager.SaveLocal(string(b[n+1:]))
+				if err != nil {
+					log.Println(err)
+				}
+			}
+		case "getall", "Getall", "getAll", "GetAll":
+			if n == -1 {
+				local := c.songmanager.GetAllLocal()
+				remote, err := c.songmanager.GetAllRemote()
+				if err != nil {
+					log.Println(err)
+				} else {
+					fmt.Println("Songs on Server: ")
+					for i, s := range remote {
+						if i % 3 != 0 {
+							fmt.Printf("%100d: %-30s | ", i, s)
+						} else {
+							fmt.Printf("%100d: %-30s\n", i, s)
+						}
+					}
+					fmt.Println("Local songs: ")
+					for i, s := range local {
+						if i % 3 != 0 {
+							fmt.Printf("%100d: %-30s | ", i, s)
+						} else {
+							fmt.Printf("%100d: %-30s\n", i, s)
+						}
+					}
+				}
+			} else if comm2 := string(b[n+1:]); comm2 == "local" || comm2 == "Local" {
+				local := c.songmanager.GetAllLocal()
+				fmt.Println("Local songs: ")
+				for i, s := range local {
+					if i % 3 != 0 {
+						fmt.Printf("%100d: %-30s | ", i, s)
+					} else {
+						fmt.Printf("%100d: %-30s\n", i, s)
+					}
+				}
+			} else if comm2 == "remote" || comm2 == "Remote" {
+				remote, err := c.songmanager.GetAllRemote()
+				if err != nil {
+					log.Println(err)
+				}
+				fmt.Println("Songs on Server: ")
+				for i, s := range remote {
+					if i % 3 != 0 {
+						fmt.Printf("%100d: %-30s | ", i, s)
+					} else {
+						fmt.Printf("%100d: %-30s\n", i, s)
+					}
+				}
+			}
+		case "delete", "Delete":
+			if n != -1 {
+				err := c.songmanager.Delete(string(b[n+1:]))
+				if err != nil {
+					log.Println(err)
+				}
+			} else {
+				err := c.songmanager.Delete("")
+				if err != nil {
+					log.Println(err)
+				}
+			}
+		case "deletelocal", "Deletelocal", "DeleteLocal", "deleteLocal":
+			if n != -1 {
+				err := c.songmanager.DeleteLocal(string(b[n+1:]))
+				if err != nil {
+					log.Println(err)
+				}
+			} else {
+				err := c.songmanager.DeleteLocal("")
+				if err != nil {
+					log.Println(err)
+				}
+			}
+		case "playlist", "list", "List", "Playlist", "PlayList", "playList":
+			songs := c.songmanager.GetPlayList()
+			if songs == nil {
+				fmt.Println("Play list is empty")
+			} else {
+				for i, s := range songs {
+					if i % 3 != 0 {
+						fmt.Printf("%100d: %-30s | ", i, s)
+					} else {
+						fmt.Printf("%100d: %-30s\n", i, s)
+					} 
+				}
+			}
+		case "status", "Status":
+			fmt.Sprintf("Name:%s Status: %b", c.songmanager.GetCurrent(), c.player.IsPlaying())
 		}
 	}
 }

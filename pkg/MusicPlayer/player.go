@@ -1,6 +1,7 @@
 package MusicPlayer
 
 import (
+	"bytes"
 	"io"
 	"sync"
 	"time"
@@ -9,11 +10,12 @@ import (
 	"github.com/hajimehoshi/oto/v2"
 )
 
-type player interface {
+type Player interface {
 	Play()
 	Pause()
 	Stop()
-	Load(decorded *mp3.Decoder)
+	Load(data []byte) error
+	IsPlaying() bool
 }
 
 type mp3Player struct {
@@ -24,7 +26,7 @@ type mp3Player struct {
 	waiting				sync.Mutex
 }
 
-func NewMp3Player(ch chan byte) (player, error) {
+func NewMp3Player(ch chan byte) (Player, error) {
 	otoCtx, readyChan, err := oto.NewContext(44100, 2, 2)
 	if err != nil {
 		return nil, err
@@ -98,9 +100,18 @@ func (m *mp3Player) Stop() {
 	}
 }
 
-func (m *mp3Player) Load(decorded *mp3.Decoder) {
+func (m *mp3Player) Load(data []byte) error {
 	m.Stop()
+	decorded, err := mp3.NewDecoder(bytes.NewReader(data))
+	if err != nil {
+		return err
+	}
 	m.song = decorded
+	return nil
+}
+
+func (m *mp3Player) IsPlaying() bool {
+	return m.playing
 }
 
 /*func (m *mp3Player) NextSong() {
