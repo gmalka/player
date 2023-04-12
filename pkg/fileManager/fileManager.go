@@ -10,12 +10,21 @@ const (
 	DefaultPath string = "/Users/gmalka/Player/music"
 )
 
-type myMusicFileManager struct {
+var CantFindFile error = errors.New("File does not exists")
+
+type Mp3FileManager interface {
+	Add(name string, input []byte) error
+	Get(name string) ([]byte, error)
+	GetAll() []string
+	Delete(name string) error
+}
+
+type myMp3FileManager struct {
 	path	string
 	files	map[string]interface{}
 }
 
-func NewMusicFileManager(path string) (MusicFileManager, error) {
+func NewMusicFileManager(path string) (Mp3FileManager, error) {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
@@ -42,17 +51,10 @@ func NewMusicFileManager(path string) (MusicFileManager, error) {
 		}
 	}
 
-	return myMusicFileManager{path: path, files: m}, nil
+	return myMp3FileManager{path: path, files: m}, nil
 }
 
-type MusicFileManager interface {
-	Add(name string, input []byte) error
-	Open(name string) ([]byte, error)
-	GetAll() []string
-	Delete(name string) error
-}
-
-func (m myMusicFileManager) Add(name string, input []byte) error {
+func (m myMp3FileManager) Add(name string, input []byte) error {
 	if _, ok := m.files[name]; ok {
 		return errors.New("File is already exists")
 	}
@@ -69,26 +71,26 @@ func (m myMusicFileManager) Add(name string, input []byte) error {
 	return nil
 }
 
-func (m myMusicFileManager) Open(name string) ([]byte, error) {
+func (m myMp3FileManager) Get(name string) ([]byte, error) {
 	if _, ok := m.files[name]; !ok {
-		return nil, errors.New("File does not exists")
+		return nil, CantFindFile
 	}
 	path := fmt.Sprintf("%s/%s", m.path, name)
 	data, err := os.ReadFile(path)
 	return data, err
 }
 
-func (m myMusicFileManager) GetAll() []string {
+func (m myMp3FileManager) GetAll() []string {
 	result := make([]string, len(m.files))
 	i := 0
-	for s, _ := range m.files {
+	for s := range m.files {
 		result[i] = s
 		i++
 	}
 	return result
 }
 
-func (m myMusicFileManager) Delete(name string) error {
+func (m myMp3FileManager) Delete(name string) error {
 	if _, ok := m.files[name]; !ok {
 		return errors.New("File does not exists")
 	}
@@ -97,3 +99,16 @@ func (m myMusicFileManager) Delete(name string) error {
 	err := os.Remove(path)
 	return err
 }
+
+/*func (m myMp3FileManager) Save(name string, data []byte) error {
+	if _, ok := m.files[name]; ok {
+		return errors.New(fmt.Sprintf("File, named %s already exists", name))
+	}
+	path := fmt.Sprintf("%s/%s", m.path, name)
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	_, err = f.Write(data)
+	return err
+}*/

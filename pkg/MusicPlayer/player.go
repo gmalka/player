@@ -1,43 +1,36 @@
-package Player
+package MusicPlayer
 
 import (
-	"sync"
 	"io"
+	"sync"
 	"time"
 
 	"github.com/hajimehoshi/go-mp3"
 	"github.com/hajimehoshi/oto/v2"
 )
 
-
-type song struct {
-	s         	*mp3.Decoder
-	next, pre 	*song
-}
-
-type Player interface {
+type player interface {
 	Play()
 	Pause()
-	NextSong()
-	PreSong()
-	Add(decorded *mp3.Decoder)
+	Stop()
+	Load(decorded *mp3.Decoder)
 }
 
 type mp3Player struct {
-	songs, last, first	*song
+	song				*mp3.Decoder
 	stop               	chan byte
 	ctx                	*oto.Context
 	playing            	bool
-	waiting			   	*sync.Mutex
+	waiting				sync.Mutex
 }
 
-func NewMp3Player(ch chan byte) (Player, error) {
+func NewMp3Player(ch chan byte) (player, error) {
 	otoCtx, readyChan, err := oto.NewContext(44100, 2, 2)
 	if err != nil {
 		return nil, err
 	}
 	<-readyChan
-	return &mp3Player{ctx: otoCtx, stop: ch, playing: false, waiting: &sync.Mutex{}}, nil
+	return &mp3Player{ctx: otoCtx, stop: ch, playing: false, waiting: sync.Mutex{}}, nil
 }
 
 func (m *mp3Player) Play() {
@@ -49,17 +42,13 @@ func (m *mp3Player) Play() {
 }
 
 func (m *mp3Player) play() {
-	if m.songs == nil {
-		return
-	}
 	m.waiting.Lock()
-	player := m.ctx.NewPlayer(m.songs.s)
-	defer player.Close()
-	player.(io.Seeker).Seek(0, io.SeekStart)
-	player.Play()
-	m.playing = true
+	player := m.ctx.NewPlayer(m.song)
 
-	go func (player oto.Player)  {
+	//go func (player oto.Player)  {
+		defer player.Close()
+		player.(io.Seeker).Seek(0, io.SeekStart)
+		player.Play()
 		for player.IsPlaying() {
 			select {
 				case sig := <- m.stop:
@@ -86,11 +75,11 @@ func (m *mp3Player) play() {
 					time.Sleep(time.Millisecond * 100)
 			}
 		}
-		m.NextSong()
+		player.Pause()
 		m.playing = false
 		m.waiting.Unlock()
-		m.Play()
-	}(player)
+		return
+	//}(player)
 }
 
 func (m *mp3Player) Pause() {
@@ -101,7 +90,20 @@ func (m *mp3Player) Pause() {
 	}
 }
 
-func (m *mp3Player) NextSong() {
+func (m *mp3Player) Stop() {
+	select {
+		case m.stop <- 1:
+	default:
+		return
+	}
+}
+
+func (m *mp3Player) Load(decorded *mp3.Decoder) {
+	m.Stop()
+	m.song = decorded
+}
+
+/*func (m *mp3Player) NextSong() {
 	if m.songs.next != nil {
 		select {
 		case m.stop <- 1:
@@ -139,16 +141,5 @@ func (m mp3Player) PreSong() {
 			return
 		}
 	}
-}
+}*/
 
-func (m *mp3Player) Add(decorded *mp3.Decoder) {
-	if m.songs == nil {
-		m.songs = &song{s: decorded}
-		m.last = m.songs
-		m.first = m.songs
-	
-	} else {
-		m.last.next = &song{s: decorded, pre: m.last}
-		m.last = m.last.next
-	}
-}

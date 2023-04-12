@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/gmalka/Player/pkg/Player"
-	"github.com/gmalka/Player/pkg/controller"
+	"github.com/gmalka/Player/internal/app"
 	"github.com/gmalka/Player/pkg/fileManager"
+	"github.com/gmalka/Player/pkg/player"
 )
 
 func main() {
@@ -22,5 +22,5 @@ func main() {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	controller := controller.NewController(ctx, player, fm)
+	controller := app.NewController(ctx, player, fm)
 }

@@ -5,11 +5,11 @@ option go_package = "./proto";
 package proto;
 
 service MusicPlayerService {
-  rpc UploadSong(SongRequest) returns (stream UploadSongResponse) {}
+  rpc LoadSong(SongRequest) returns (stream LoadSongResponse) {}
   rpc GetSongs(None) returns (stream SongRequest) {}
 }
 
-message UploadSongResponse {
+message LoadSongResponse {
   bytes song = 1;
 }
 
