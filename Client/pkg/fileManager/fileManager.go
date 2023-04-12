@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DefaultPath string = "/Users/gmalka/Player/music"
+	DefaultPath string = "/Users/gmalka/Player/Client/music"
 )
 
 var CantFindFile error = errors.New("File does not exists")

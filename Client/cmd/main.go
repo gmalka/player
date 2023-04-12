@@ -1,15 +1,13 @@
 package main
 
 import (
-	"context"
 	"log"
 
-	"github.com/gmalka/Player/internal/app"
-	"github.com/gmalka/Player/internal/service"
-	"github.com/gmalka/Player/internal/transport/grpc"
-	"github.com/gmalka/Player/pkg/MusicPlayer"
-	"github.com/gmalka/Player/pkg/fileManager"
-	"github.com/gmalka/Player/pkg/songsManager"
+	"github.com/gmalka/Client/pkg/MusicPlayer"
+	"github.com/gmalka/Client/pkg/songsManager"
+	"github.com/gmalka/Client/pkg/fileManager"
+	"github.com/gmalka/Client/internal/transport/grpc"
+	"github.com/gmalka/Client/internal/service"
 )
 
 func main() {
