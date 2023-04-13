@@ -68,7 +68,7 @@ func (c myController) Run() {
 		switch string(command) {
 		case "add", "addsong", "Add", "AddSong", "addSong":
 			if n == -1 {
-				fmt.Println("incorrect command")
+				log.Println("incorrect command")
 				continue
 			}
 			err := c.songmanager.Add(string(b[n+1:]))
@@ -77,7 +77,7 @@ func (c myController) Run() {
 			}
 		case "Play", "play":
 			if n != -1 {
-				fmt.Println("incorrect command")
+				log.Println("incorrect command")
 				continue
 			}
 			if c.player.IsPlaying() {
@@ -93,7 +93,7 @@ func (c myController) Run() {
 			}
 		case "next", "Next", "nextsong", "Nextsong", "NextSong":
 			if n != -1 {
-				fmt.Println("incorrect command")
+				log.Println("incorrect command")
 				continue
 			}
 			data, err := c.songmanager.Next()
@@ -113,12 +113,18 @@ func (c myController) Run() {
 			} else {
 				c.player.Load(data)
 			}
-		case "pause", "Pause", "stop", "Stop":
+		case "pause", "Pause":
 			if n != -1 {
-				fmt.Println("incorrect command")
+				log.Println("incorrect command")
 				continue
 			}
 			c.player.Pause()
+		case "stop", "Stop":
+			if n != -1 {
+				log.Println("incorrect command")
+				continue
+			}
+			c.player.Stop()
 		case "Save", "SaveLocal", "save", "savelcoal", "saveLocal":
 			if n == -1 {
 				err = c.songmanager.SaveLocal("")
@@ -206,7 +212,7 @@ func (c myController) Run() {
 		case "playlist", "list", "List", "Playlist", "PlayList", "playList":
 			songs := c.songmanager.GetPlayList()
 			if songs == nil {
-				fmt.Println("Play list is empty")
+				log.Println("Play list is empty")
 			} else {
 				for i, s := range songs {
 					if i % 3 != 0 {

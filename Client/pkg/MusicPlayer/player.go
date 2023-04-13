@@ -18,7 +18,13 @@ type Player interface {
 	IsPlaying() bool
 }
 
+type Iterator interface {
+	Next() ([]byte, error)
+	Pre() ([]byte, error)
+}
+
 type mp3Player struct {
+	iter	Iterator
 	song    *mp3.Decoder
 	stop    chan byte
 	ctx     *oto.Context
@@ -27,13 +33,13 @@ type mp3Player struct {
 	waiting sync.Mutex
 }
 
-func NewMp3Player(ch chan byte) (Player, error) {
+func NewMp3Player(ch chan byte, iter Iterator) (Player, error) {
 	otoCtx, readyChan, err := oto.NewContext(44100, 2, 2)
 	if err != nil {
 		return nil, err
 	}
 	<-readyChan
-	return &mp3Player{ctx: otoCtx, paused: true, stop: ch, playing: false, waiting: sync.Mutex{}}, nil
+	return &mp3Player{ctx: otoCtx, iter: iter, paused: true, stop: ch, playing: false, waiting: sync.Mutex{}}, nil
 }
 
 func (m *mp3Player) Play() {
@@ -52,7 +58,7 @@ func (m *mp3Player) play() {
 	player.(io.Seeker).Seek(0, io.SeekStart)
 	player.Play()
 	m.playing = true
-	m.paused = false
+	m.paused = true
 	for player.IsPlaying() {
 		select {
 		case sig := <- m.stop:
@@ -84,21 +90,29 @@ func (m *mp3Player) play() {
 	player.Pause()
 	m.playing = false
 	m.waiting.Unlock()
+	b, err := m.iter.Next()
+	if err != nil {
+		m.paused = true
+		return
+	}
+	m.Load(b)
 	return
 }
 
 func (m *mp3Player) Pause() {
+	after := time.After(time.Second * 1)
 	select {
 	case m.stop <- 2:
-	default:
+	case <- after:
 		return
 	}
 }
 
 func (m *mp3Player) Stop() {
+	after := time.After(time.Second * 1)
 	select {
 	case m.stop <- 1:
-	default:
+	case <- after:
 		return
 	}
 }

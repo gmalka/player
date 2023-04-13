@@ -26,7 +26,7 @@ type Mp3FileManager interface {
 }
 
 type MusicPlayerService struct {
-	Manager	Mp3FileManager
+	Manager Mp3FileManager
 	proto.UnimplementedMusicPlayerServiceServer
 }
 
@@ -86,4 +86,4 @@ func (g MusicPlayerService) GetSongs(req *proto.None, stream proto.MusicPlayerSe
 	}
 	log.Println("Finish loading")
 	return nil
-}pause
+}

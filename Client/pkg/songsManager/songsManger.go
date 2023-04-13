@@ -3,6 +3,7 @@ package songsManager
 import (
 	"errors"
 	"fmt"
+	"strconv"
 )
 
 type Mp3FileManager interface {
@@ -32,26 +33,31 @@ type SongsManager interface {
 }
 
 type mySongsManager struct {
-	list, first, last	*song
-	fileManager			Mp3FileManager
-	rFileManager		RemoteFileUploadService
+	id				  int
+	list, first, last *song
+	fileManager       Mp3FileManager
+	rFileManager      RemoteFileUploadService
 }
 
 type song struct {
-	name		string
-	local		bool
-	next, pre	*song
-	data		[]byte
+	id		  int
+	name      string
+	local     bool
+	next, pre *song
+	data      []byte
 }
 
 func NewSongManager(f Mp3FileManager, r RemoteFileUploadService) SongsManager {
-	return &mySongsManager{fileManager: f, rFileManager: r}
+	return &mySongsManager{fileManager: f, rFileManager: r, id: 1}
 }
 
 func (sm *mySongsManager) Get(name string) ([]byte, error) {
 	if name == "" {
 		if sm.list == nil {
 			return nil, errors.New("No songs in playlist")
+		}
+		if sm.list.local == true {
+			return sm.fileManager.Get(sm.list.name)
 		}
 		return sm.list.data, nil
 	}
@@ -70,11 +76,13 @@ func (sm *mySongsManager) Add(name string) error {
 	_, err := sm.fileManager.Get(name)
 	if err == nil {
 		if sm.list == nil {
-			sm.list = &song{name:name, local: true}
+			sm.list = &song{name: name, local: true, id: sm.id}
+			sm.id++
 			sm.first = sm.list
 			sm.last = sm.list
 		} else {
-			sm.last.next = &song{name:name, local: true, pre: sm.last}
+			sm.last.next = &song{name: name, local: true, pre: sm.last, id: sm.id}
+			sm.id++
 			sm.last = sm.last.next
 		}
 		return nil
@@ -82,11 +90,13 @@ func (sm *mySongsManager) Add(name string) error {
 	res, err := sm.rFileManager.Get(name)
 	if err == nil {
 		if sm.list == nil {
-			sm.list = &song{name:name, local: false, data: res}
+			sm.list = &song{name: name, local: false, data: res, id: sm.id}
+			sm.id++
 			sm.first = sm.list
 			sm.last = sm.list
 		} else {
-			sm.last.next = &song{name:name, local: false, pre: sm.last, data: res}
+			sm.last.next = &song{name: name, local: false, pre: sm.last, data: res, id: sm.id}
+			sm.id++
 			sm.last = sm.last.next
 		}
 		return err
@@ -130,7 +140,7 @@ func (sm *mySongsManager) Pre() ([]byte, error) {
 func (sm *mySongsManager) GetPlayList() []string {
 	s := make([]string, 0, 10)
 	cur := sm.first
-	for ; cur != nil ; cur = cur.next {
+	for ; cur != nil; cur = cur.next {
 		s = append(s, cur.name)
 	}
 	if len(s) == 0 {
@@ -139,14 +149,14 @@ func (sm *mySongsManager) GetPlayList() []string {
 	return s
 }
 
-func (sm *mySongsManager) Delete(name string) error {
+func (sm *mySongsManager) Delete(id string) error {
 	if sm.list == nil {
 		return errors.New("No songs in list")
 	}
 
-	if name == "" {
+	if id == "" {
 		if sm.list.pre == nil {
-			if sm.last == sm.list {
+			if sm.list.next == nil {
 				sm.last = nil
 			}
 			cur := sm.list
@@ -164,25 +174,43 @@ func (sm *mySongsManager) Delete(name string) error {
 			cur.pre = nil
 		}
 	} else {
-		cur := sm.list
-		for ; cur != nil && cur.name != name; cur = cur.next {
+		cur := sm.first
+		num, err := strconv.Atoi(id)
+		if err != nil {
+			return err
+		}
+		for i := 1; cur != nil && i < num; cur, i = cur.next, i + 1 {
 		}
 		if cur == nil {
-			return errors.New(fmt.Sprintf("Cant find song: %s", name))
+			return errors.New(fmt.Sprintf("Cant find song with id: %s", id))
 		}
 
-		if sm.list.pre == nil {
-			if sm.last == cur {
-				sm.last = nil
+		if sm.list.id == cur.id {
+			if cur.next != nil {
+				sm.list = sm.list.next
+			} else {
+				sm.list = sm.list.pre
+			}
+		}
+
+		if cur.pre == nil {
+			if cur.next == nil {
+				sm.last, sm.first, sm.list = nil, nil, nil
+				return nil
+			} else {
+				cur.next.pre = nil
 			}
 			sm.first = cur.next
 			cur.pre = nil
 			cur.next = nil
 		} else {
-			if sm.last == cur {
+			if cur.next == nil {
 				sm.last = cur.pre
+				sm.last.next = nil
+			} else {
+				cur.next.pre = cur.next
 			}
-			cur.pre = cur.next
+			cur.pre.next = cur.next
 			cur.next = nil
 			cur.pre = nil
 		}
@@ -190,7 +218,6 @@ func (sm *mySongsManager) Delete(name string) error {
 
 	return nil
 }
-
 
 func (sm *mySongsManager) DeleteLocal(name string) error {
 	return sm.fileManager.Delete(name)
@@ -216,7 +243,7 @@ func (sm *mySongsManager) SaveLocal(name string) error {
 			return errors.New(fmt.Sprintf("File with same name already exists: %s", name))
 		}
 	}
-	data, err :=  sm.rFileManager.Get(name)
+	data, err := sm.rFileManager.Get(name)
 	if err != nil {
 		return err
 	}

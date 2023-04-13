@@ -11,27 +11,26 @@ import (
 )
 
 func main() {
-	ch := make(chan byte, 1)
+	ch := make(chan byte)
 	defer close(ch)
-
-	player, err := MusicPlayer.NewMp3Player(ch)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	mp3FileManager, err := fileManager.NewMusicFileManager(fileManager.DefaultPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-
 	//TODO: создать файл конфигов
 	uploadService, err := grpc.NewGrpcClient("localhost", "9879")
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	
 	manager := songsManager.NewSongManager(mp3FileManager, uploadService)
+
+	player, err := MusicPlayer.NewMp3Player(ch, manager)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	controller := service.NewController(player, manager)
 	controller.Run()
