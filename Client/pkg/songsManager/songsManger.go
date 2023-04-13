@@ -184,43 +184,59 @@ func (sm *mySongsManager) Delete(id string) error {
 		if cur == nil {
 			return errors.New(fmt.Sprintf("Cant find song with id: %s", id))
 		}
-
-		if sm.list.id == cur.id {
-			if cur.next != nil {
-				sm.list = sm.list.next
-			} else {
-				sm.list = sm.list.pre
-			}
-		}
-
-		if cur.pre == nil {
-			if cur.next == nil {
-				sm.last, sm.first, sm.list = nil, nil, nil
-				return nil
-			} else {
-				cur.next.pre = nil
-			}
-			sm.first = cur.next
-			cur.pre = nil
-			cur.next = nil
-		} else {
-			if cur.next == nil {
-				sm.last = cur.pre
-				sm.last.next = nil
-			} else {
-				cur.next.pre = cur.next
-			}
-			cur.pre.next = cur.next
-			cur.next = nil
-			cur.pre = nil
-		}
+		sm.deleteFromList(cur)
 	}
 
 	return nil
 }
 
 func (sm *mySongsManager) DeleteLocal(name string) error {
-	return sm.fileManager.Delete(name)
+	err := sm.fileManager.Delete(name)
+	if err != nil {
+		return err
+	}
+	if sm.list == nil {
+		return nil
+	}
+	cur := sm.first
+	for ; cur != nil; cur = cur.next {
+		if cur.name == name && cur.local == true {
+			sm.deleteFromList(cur)
+		}
+	}
+	return nil
+}
+
+func (sm *mySongsManager) deleteFromList(cur *song) {
+	if sm.list.id == cur.id {
+		if cur.next != nil {
+			sm.list = sm.list.next
+		} else {
+			sm.list = sm.list.pre
+		}
+	}
+
+	if cur.pre == nil {
+		if cur.next == nil {
+			sm.last, sm.first, sm.list = nil, nil, nil
+			return
+		} else {
+			cur.next.pre = nil
+		}
+		sm.first = cur.next
+		cur.pre = nil
+		cur.next = nil
+	} else {
+		if cur.next == nil {
+			sm.last = cur.pre
+			sm.last.next = nil
+		} else {
+			cur.next.pre = cur.next
+		}
+		cur.pre.next = cur.next
+		cur.next = nil
+		cur.pre = nil
+	}
 }
 
 func (sm *mySongsManager) SaveLocal(name string) error {
@@ -228,19 +244,9 @@ func (sm *mySongsManager) SaveLocal(name string) error {
 		name = sm.list.name
 	}
 	cur := sm.first
-	for ; cur != nil && cur.name != name; cur = cur.next {
-	}
-	if cur != nil {
-		if cur.local == true {
+	for ; cur != nil; cur = cur.next {
+		if cur.name == name &&  cur.local == true {
 			return errors.New(fmt.Sprintf("File already exists: %s", name))
-		} else {
-			err := sm.fileManager.Add(name, cur.data)
-			if err != nil {
-				return err
-			}
-			cur.data = nil
-			cur.local = true
-			return errors.New(fmt.Sprintf("File with same name already exists: %s", name))
 		}
 	}
 	data, err := sm.rFileManager.Get(name)

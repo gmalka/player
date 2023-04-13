@@ -25,33 +25,42 @@ type myMp3FileManager struct {
 }
 
 func NewMusicFileManager(path string) (Mp3FileManager, error) {
-	files, err := os.ReadDir(path)
+	mp3fm := &myMp3FileManager{path: path}
+	err := mp3fm.resetLocalSongs()
 	if err != nil {
 		return nil, err
 	}
-	m := make(map[string]interface{}, len(files))
+	return mp3fm, nil
+}
+
+func (m *myMp3FileManager) resetLocalSongs() error {
+	files, err := os.ReadDir(m.path)
+	if err != nil {
+		return err
+	}
+	mp := make(map[string]interface{}, len(files))
 	buf := make([]byte, 3)
 	mp3Signature := []byte{73, 68, 51}
 	for _, f := range files {
 		if !f.IsDir() {
-			file, err := os.Open(fmt.Sprintf("%s/%s", path, f.Name()))
+			file, err := os.Open(fmt.Sprintf("%s/%s", m.path, f.Name()))
 			if err != nil {
-				return nil, err
+				return err
 			}
 			_, err = file.Read(buf)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			for i, b := range buf {
 				if b !=  mp3Signature[i] {
-					return nil, err
+					return err
 				}
 			}
-			m[f.Name()] = nil
+			mp[f.Name()] = nil
 		}
 	}
-
-	return &myMp3FileManager{path: path, files: m}, nil
+	m.files = mp
+	return nil
 }
 
 func (m *myMp3FileManager) Add(name string, input []byte) error {
@@ -97,6 +106,11 @@ func (m *myMp3FileManager) Delete(name string) error {
 
 	path := fmt.Sprintf("%s/%s", m.path, name)
 	err := os.Remove(path)
+	if err != nil {
+		return err
+	}
+	err = m.resetLocalSongs()
+	delete(m.files, name)
 	return err
 }
 
