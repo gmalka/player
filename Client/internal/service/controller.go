@@ -47,7 +47,7 @@ func (c myController) Run() {
 
 	r := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Println("Enter command:")
+		fmt.Print("Enter command:     ")
 		b, prefix, err := r.ReadLine()
 		if err != nil {
 			fmt.Println(err)
@@ -66,6 +66,15 @@ func (c myController) Run() {
 		}
 
 		switch string(command) {
+		case "add", "addsong", "Add", "AddSong", "addSong":
+			if n == -1 {
+				fmt.Println("incorrect command")
+				continue
+			}
+			err := c.songmanager.Add(string(b[n+1:]))
+			if err != nil {
+				log.Println(err)
+			}
 		case "Play", "play":
 			if n != -1 {
 				fmt.Println("incorrect command")
@@ -82,20 +91,7 @@ func (c myController) Run() {
 					c.player.Play()
 				}
 			}
-			c.player.Play()
 		case "next", "Next", "nextsong", "Nextsong", "NextSong":
-			if n != -1 {
-				fmt.Println("incorrect command")
-				continue
-			}
-			data, err := c.songmanager.Pre()
-			if err != nil {
-				log.Println(err)
-			} else {
-				c.player.Load(data)
-				c.player.Play()
-			}
-		case "pre", "Pre", "presong", "Presong", "PreSong":
 			if n != -1 {
 				fmt.Println("incorrect command")
 				continue
@@ -105,7 +101,17 @@ func (c myController) Run() {
 				log.Println(err)
 			} else {
 				c.player.Load(data)
-				c.player.Play()
+			}
+		case "pre", "Pre", "presong", "Presong", "PreSong":
+			if n != -1 {
+				fmt.Println("incorrect command")
+				continue
+			}
+			data, err := c.songmanager.Pre()
+			if err != nil {
+				log.Println(err)
+			} else {
+				c.player.Load(data)
 			}
 		case "pause", "Pause", "stop", "Stop":
 			if n != -1 {
@@ -135,17 +141,17 @@ func (c myController) Run() {
 					fmt.Println("Songs on Server: ")
 					for i, s := range remote {
 						if i % 3 != 0 {
-							fmt.Printf("%100d: %-30s | ", i, s)
+							fmt.Printf("%3d: %-20s | ", i + 1, s)
 						} else {
-							fmt.Printf("%100d: %-30s\n", i, s)
+							fmt.Printf("%3d: %-20s\n", i + 1, s)
 						}
 					}
 					fmt.Println("Local songs: ")
 					for i, s := range local {
 						if i % 3 != 0 {
-							fmt.Printf("%100d: %-30s | ", i, s)
+							fmt.Printf("%3d: %-20s | ", i + 1, s)
 						} else {
-							fmt.Printf("%100d: %-30s\n", i, s)
+							fmt.Printf("%3d: %-20s\n", i + 1, s)
 						}
 					}
 				}
@@ -154,9 +160,9 @@ func (c myController) Run() {
 				fmt.Println("Local songs: ")
 				for i, s := range local {
 					if i % 3 != 0 {
-						fmt.Printf("%100d: %-30s | ", i, s)
+						fmt.Printf("%3d: %-20s | ", i + 1, s)
 					} else {
-						fmt.Printf("%100d: %-30s\n", i, s)
+						fmt.Printf("%3d: %-20s\n", i + 1, s)
 					}
 				}
 			} else if comm2 == "remote" || comm2 == "Remote" {
@@ -167,9 +173,9 @@ func (c myController) Run() {
 				fmt.Println("Songs on Server: ")
 				for i, s := range remote {
 					if i % 3 != 0 {
-						fmt.Printf("%100d: %-30s | ", i, s)
+						fmt.Printf("%3d: %-20s | ", i + 1, s)
 					} else {
-						fmt.Printf("%100d: %-30s\n", i, s)
+						fmt.Printf("%3d: %-20s\n", i + 1, s)
 					}
 				}
 			}
@@ -204,14 +210,14 @@ func (c myController) Run() {
 			} else {
 				for i, s := range songs {
 					if i % 3 != 0 {
-						fmt.Printf("%100d: %-30s | ", i, s)
+						fmt.Printf("%3d: %-20s | ", i + 1, s)
 					} else {
-						fmt.Printf("%100d: %-30s\n", i, s)
+						fmt.Printf("%3d: %-20s\n", i + 1, s)
 					} 
 				}
 			}
-		case "status", "Status":
-			fmt.Sprintf("Name:%s Status: %b", c.songmanager.GetCurrent(), c.player.IsPlaying())
+		case "status", "Status", "info":
+			fmt.Printf("Name:%s | Loading: %t\n", c.songmanager.GetCurrent(), c.player.IsPlaying())
 		}
 	}
 }

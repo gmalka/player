@@ -51,10 +51,10 @@ func NewMusicFileManager(path string) (Mp3FileManager, error) {
 		}
 	}
 
-	return &myMp3FileManager{path: path, files: m}, nil
+	return myMp3FileManager{path: path, files: m}, nil
 }
 
-func (m *myMp3FileManager) Add(name string, input []byte) error {
+func (m myMp3FileManager) Add(name string, input []byte) error {
 	if _, ok := m.files[name]; ok {
 		return errors.New("File is already exists")
 	}
@@ -71,7 +71,7 @@ func (m *myMp3FileManager) Add(name string, input []byte) error {
 	return nil
 }
 
-func (m *myMp3FileManager) Get(name string) ([]byte, error) {
+func (m myMp3FileManager) Get(name string) ([]byte, error) {
 	if _, ok := m.files[name]; !ok {
 		return nil, CantFindFile
 	}
@@ -80,7 +80,7 @@ func (m *myMp3FileManager) Get(name string) ([]byte, error) {
 	return data, err
 }
 
-func (m *myMp3FileManager) GetAll() []string {
+func (m myMp3FileManager) GetAll() []string {
 	result := make([]string, len(m.files))
 	i := 0
 	for s := range m.files {
@@ -90,7 +90,7 @@ func (m *myMp3FileManager) GetAll() []string {
 	return result
 }
 
-func (m *myMp3FileManager) Delete(name string) error {
+func (m myMp3FileManager) Delete(name string) error {
 	if _, ok := m.files[name]; !ok {
 		return errors.New("File does not exists")
 	}

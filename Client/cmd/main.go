@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	ch := make(chan byte)
+	ch := make(chan byte, 1)
 	defer close(ch)
 
 	player, err := MusicPlayer.NewMp3Player(ch)
@@ -26,7 +26,7 @@ func main() {
 
 
 	//TODO: создать файл конфигов
-	uploadService, err := grpc.NewGrpcClient("localhost", "5762")
+	uploadService, err := grpc.NewGrpcClient("localhost", "9879")
 	if err != nil {
 		log.Fatal(err)
 	}

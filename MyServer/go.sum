@@ -1,3 +1,5 @@
+github.com/gmalka/Player v0.0.0-20230413001918-9299340dfb69 h1:d0CMEg84Ze18hjIhfPSEa8c7aobrqih8glwEk/7fa0s=
+github.com/gmalka/Player v0.0.0-20230413001918-9299340dfb69/go.mod h1:ecjpo531LirOaUJ/zm4tmVmUfMdCdvn6YeMRGRVgTnU=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/golang/protobuf v1.5.2 h1:ROPKBNFfQgOUMifHyP+KYbvpjbdoFNs+aK7DXlji0Tw=
 github.com/golang/protobuf v1.5.2/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiuN0vRsmY=

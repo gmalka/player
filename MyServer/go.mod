@@ -1,4 +1,4 @@
-module github.com/gmalka/Server
+module github.com/gmalka/MyServer
 
 go 1.19
 
@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/gmalka/Player v0.0.0-20230413001918-9299340dfb69 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect

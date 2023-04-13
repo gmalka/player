@@ -29,7 +29,7 @@ func NewGrpcClient(ip, port string) (RemoteFileUploadService, error) {
 	}
 
 	path := fmt.Sprintf("%s:%s", ip, port)
-	conn, err := grpc.Dial(path, opts)
+	conn, err := grpc.Dial(path, opts...)
 	if err != nil {
 		return nil, err
 	}

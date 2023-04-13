@@ -19,11 +19,12 @@ type Player interface {
 }
 
 type mp3Player struct {
-	song				*mp3.Decoder
-	stop               	chan byte
-	ctx                	*oto.Context
-	playing            	bool
-	waiting				sync.Mutex
+	song    *mp3.Decoder
+	stop    chan byte
+	ctx     *oto.Context
+	playing bool
+	paused	bool
+	waiting sync.Mutex
 }
 
 func NewMp3Player(ch chan byte) (Player, error) {
@@ -32,14 +33,14 @@ func NewMp3Player(ch chan byte) (Player, error) {
 		return nil, err
 	}
 	<-readyChan
-	return &mp3Player{ctx: otoCtx, stop: ch, playing: false, waiting: sync.Mutex{}}, nil
+	return &mp3Player{ctx: otoCtx, paused: true, stop: ch, playing: false, waiting: sync.Mutex{}}, nil
 }
 
 func (m *mp3Player) Play() {
 	if m.playing {
 		m.stop <- 3
 	} else {
-		m.play()
+		go m.play()
 	}
 }
 
@@ -47,46 +48,48 @@ func (m *mp3Player) play() {
 	m.waiting.Lock()
 	player := m.ctx.NewPlayer(m.song)
 
-	//go func (player oto.Player)  {
-		defer player.Close()
-		player.(io.Seeker).Seek(0, io.SeekStart)
-		player.Play()
-		for player.IsPlaying() {
-			select {
-				case sig := <- m.stop:
-					if sig == 1 {
-						player.Pause()
+	defer player.Close()
+	player.(io.Seeker).Seek(0, io.SeekStart)
+	player.Play()
+	m.playing = true
+	m.paused = false
+	for player.IsPlaying() {
+		select {
+		case sig := <- m.stop:
+			if sig == 1 {
+				player.Pause()
+				m.playing = false
+				m.waiting.Unlock()
+				return
+			} else if sig == 2 {
+				m.paused = true
+				player.Pause()
+				for {
+					sig = <-m.stop
+					if sig == 3 {
+						m.paused = false
+						player.Play()
+						break
+					} else {
 						m.playing = false
 						m.waiting.Unlock()
 						return
-					} else if sig == 2 {
-						player.Pause()
-						for {
-							sig = <- m.stop
-							if sig == 3 {
-								player.Play()
-								break
-							} else {
-								m.playing = false
-								m.waiting.Unlock()
-								return
-							}
-						}
 					}
-				default:
-					time.Sleep(time.Millisecond * 100)
+				}
 			}
+		default:
+			time.Sleep(time.Millisecond * 100)
 		}
-		player.Pause()
-		m.playing = false
-		m.waiting.Unlock()
-		return
-	//}(player)
+	}
+	player.Pause()
+	m.playing = false
+	m.waiting.Unlock()
+	return
 }
 
 func (m *mp3Player) Pause() {
 	select {
-		case m.stop <- 2:
+	case m.stop <- 2:
 	default:
 		return
 	}
@@ -94,19 +97,25 @@ func (m *mp3Player) Pause() {
 
 func (m *mp3Player) Stop() {
 	select {
-		case m.stop <- 1:
+	case m.stop <- 1:
 	default:
 		return
 	}
 }
 
 func (m *mp3Player) Load(data []byte) error {
-	m.Stop()
+	paused := m.paused
+	if m.playing {
+		m.Stop()
+	}
 	decorded, err := mp3.NewDecoder(bytes.NewReader(data))
 	if err != nil {
 		return err
 	}
 	m.song = decorded
+	if !paused {
+		go m.play()
+	}
 	return nil
 }
 
@@ -153,4 +162,3 @@ func (m mp3Player) PreSong() {
 		}
 	}
 }*/
-

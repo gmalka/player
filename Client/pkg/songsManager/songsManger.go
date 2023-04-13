@@ -45,10 +45,10 @@ type song struct {
 }
 
 func NewSongManager(f Mp3FileManager, r RemoteFileUploadService) SongsManager {
-	return mySongsManager{fileManager: f, rFileManager: r}
+	return &mySongsManager{fileManager: f, rFileManager: r}
 }
 
-func (sm mySongsManager) Get(name string) ([]byte, error) {
+func (sm *mySongsManager) Get(name string) ([]byte, error) {
 	if name == "" {
 		if sm.list == nil {
 			return nil, errors.New("No songs in playlist")
@@ -66,7 +66,7 @@ func (sm mySongsManager) Get(name string) ([]byte, error) {
 	return nil, err
 }
 
-func (sm mySongsManager) Add(name string) error {
+func (sm *mySongsManager) Add(name string) error {
 	_, err := sm.fileManager.Get(name)
 	if err == nil {
 		if sm.list == nil {
@@ -95,7 +95,10 @@ func (sm mySongsManager) Add(name string) error {
 	return errors.New("Can't find the file")
 }
 
-func (sm mySongsManager) Next() ([]byte, error) {
+func (sm *mySongsManager) Next() ([]byte, error) {
+	if sm.list == nil {
+		return nil, errors.New("Empty list")
+	}
 	result := sm.list.next
 	if result == nil {
 		return nil, errors.New("Already last song in list")
@@ -108,7 +111,10 @@ func (sm mySongsManager) Next() ([]byte, error) {
 	}
 }
 
-func (sm mySongsManager) Pre() ([]byte, error) {
+func (sm *mySongsManager) Pre() ([]byte, error) {
+	if sm.list == nil {
+		return nil, errors.New("Empty list")
+	}
 	result := sm.list.pre
 	if result == nil {
 		return nil, errors.New("Already last song in list")
@@ -121,16 +127,19 @@ func (sm mySongsManager) Pre() ([]byte, error) {
 	}
 }
 
-func (sm mySongsManager) GetPlayList() []string {
+func (sm *mySongsManager) GetPlayList() []string {
 	s := make([]string, 0, 10)
 	cur := sm.first
 	for ; cur != nil ; cur = cur.next {
 		s = append(s, cur.name)
 	}
+	if len(s) == 0 {
+		return nil
+	}
 	return s
 }
 
-func (sm mySongsManager) Delete(name string) error {
+func (sm *mySongsManager) Delete(name string) error {
 	if sm.list == nil {
 		return errors.New("No songs in list")
 	}
@@ -183,11 +192,11 @@ func (sm mySongsManager) Delete(name string) error {
 }
 
 
-func (sm mySongsManager) DeleteLocal(name string) error {
+func (sm *mySongsManager) DeleteLocal(name string) error {
 	return sm.fileManager.Delete(name)
 }
 
-func (sm mySongsManager) SaveLocal(name string) error {
+func (sm *mySongsManager) SaveLocal(name string) error {
 	if name == "" {
 		name = sm.list.name
 	}
@@ -216,14 +225,17 @@ func (sm mySongsManager) SaveLocal(name string) error {
 	return err
 }
 
-func (sm mySongsManager) GetAllLocal() []string {
+func (sm *mySongsManager) GetAllLocal() []string {
 	return sm.fileManager.GetAll()
 }
 
-func (sm mySongsManager) GetAllRemote() ([]string, error) {
+func (sm *mySongsManager) GetAllRemote() ([]string, error) {
 	return sm.rFileManager.GetAll()
 }
 
-func (sm mySongsManager) GetCurrent() string {
+func (sm *mySongsManager) GetCurrent() string {
+	if sm.list == nil {
+		return "nothing"
+	}
 	return sm.list.name
 }
