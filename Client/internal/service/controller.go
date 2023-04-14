@@ -14,6 +14,7 @@ type player interface {
 	Stop()
 	Load(data []byte) error
 	IsPlaying() bool
+	GetSongInfo() string
 }
 
 type songmanager interface {
@@ -26,7 +27,7 @@ type songmanager interface {
 	Delete(name string) error
 	DeleteLocal(name string) error
 	SaveLocal(name string) error
-	GetAllLocal() []string
+	GetAllLocal() ([]string, error)
 	GetAllRemote() ([]string, error)
 }
 
@@ -50,7 +51,7 @@ func (c myController) Run() {
 		fmt.Print("Enter command:     ")
 		b, prefix, err := r.ReadLine()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 		for prefix == true {
@@ -104,7 +105,7 @@ func (c myController) Run() {
 			}
 		case "pre", "Pre", "presong", "Presong", "PreSong":
 			if n != -1 {
-				fmt.Println("incorrect command")
+				fmt.Println("#>Incorrect command")
 				continue
 			}
 			data, err := c.songmanager.Pre()
@@ -139,12 +140,16 @@ func (c myController) Run() {
 			}
 		case "getall", "Getall", "getAll", "GetAll":
 			if n == -1 {
-				local := c.songmanager.GetAllLocal()
+				local, err := c.songmanager.GetAllLocal()
+				if err != nil {
+					log.Println(err)
+					continue
+				}
 				remote, err := c.songmanager.GetAllRemote()
 				if err != nil {
 					log.Println(err)
 				} else {
-					fmt.Println("Songs on Server: ")
+					fmt.Println("#>Songs on Server: ")
 					for i, s := range remote {
 						if i % 3 != 0 {
 							fmt.Printf("%3d: %-20s | ", i + 1, s)
@@ -152,7 +157,7 @@ func (c myController) Run() {
 							fmt.Printf("%3d: %-20s\n", i + 1, s)
 						}
 					}
-					fmt.Println("Local songs: ")
+					fmt.Println("#>Local songs: ")
 					for i, s := range local {
 						if i % 3 != 0 {
 							fmt.Printf("%3d: %-20s | ", i + 1, s)
@@ -162,8 +167,12 @@ func (c myController) Run() {
 					}
 				}
 			} else if comm2 := string(b[n+1:]); comm2 == "local" || comm2 == "Local" {
-				local := c.songmanager.GetAllLocal()
-				fmt.Println("Local songs: ")
+				local, err := c.songmanager.GetAllLocal()
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				fmt.Println("#>Local songs: ")
 				for i, s := range local {
 					if i % 3 != 0 {
 						fmt.Printf("%3d: %-20s | ", i + 1, s)
@@ -176,7 +185,7 @@ func (c myController) Run() {
 				if err != nil {
 					log.Println(err)
 				}
-				fmt.Println("Songs on Server: ")
+				fmt.Println("#>Songs on Server: ")
 				for i, s := range remote {
 					if i % 3 != 0 {
 						fmt.Printf("%3d: %-20s | ", i + 1, s)
@@ -223,7 +232,7 @@ func (c myController) Run() {
 				}
 			}
 		case "status", "Status", "info":
-			fmt.Printf("Name:%s | Loading: %t\n", c.songmanager.GetCurrent(), c.player.IsPlaying())
+			fmt.Printf("#>Name:%s | Playing: %t\n#>Time: %s\n", c.songmanager.GetCurrent(), c.player.IsPlaying(),  c.player.GetSongInfo())
 		}
 	}
 }

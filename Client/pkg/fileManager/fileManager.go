@@ -15,7 +15,7 @@ var CantFindFile error = errors.New("File does not exists")
 type Mp3FileManager interface {
 	Add(name string, input []byte) error
 	Get(name string) ([]byte, error)
-	GetAll() []string
+	GetAll() ([]string, error)
 	Delete(name string) error
 }
 
@@ -89,14 +89,24 @@ func (m *myMp3FileManager) Get(name string) ([]byte, error) {
 	return data, err
 }
 
-func (m *myMp3FileManager) GetAll() []string {
+func (m *myMp3FileManager) GetAll() ([]string, error) {
+	files, err := os.ReadDir(m.path)
+	if err != nil {
+		return nil, err
+	}
+	for _, f := range files {
+		if _, ok := m.files[f.Name()]; !ok {
+			m.files[f.Name()] = nil
+		}
+	}
+
 	result := make([]string, len(m.files))
 	i := 0
 	for s := range m.files {
 		result[i] = s
 		i++
 	}
-	return result
+	return result, nil
 }
 
 func (m *myMp3FileManager) Delete(name string) error {

@@ -2,6 +2,8 @@ package MusicPlayer
 
 import (
 	"bytes"
+	"encoding/binary"
+	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -16,6 +18,7 @@ type Player interface {
 	Stop()
 	Load(data []byte) error
 	IsPlaying() bool
+	GetSongInfo() string
 }
 
 type Iterator interface {
@@ -24,17 +27,19 @@ type Iterator interface {
 }
 
 type mp3Player struct {
-	iter	Iterator
-	song    *mp3.Decoder
-	stop    chan byte
-	ctx     *oto.Context
-	playing bool
-	paused	bool
-	waiting sync.Mutex
+	iter				Iterator
+	song    			*mp3.Decoder
+	stop    			chan byte
+	ctx     			*oto.Context
+	playing, paused 	bool
+	waiting 			sync.Mutex
+	startTime			int
 }
 
 func NewMp3Player(ch chan byte, iter Iterator) (Player, error) {
+	io.NewSectionReader()
 	otoCtx, readyChan, err := oto.NewContext(44100, 2, 2)
+	//binary.Read(r, binary.BigEndian)
 	if err != nil {
 		return nil, err
 	}
@@ -53,10 +58,12 @@ func (m *mp3Player) Play() {
 func (m *mp3Player) play() {
 	m.waiting.Lock()
 	player := m.ctx.NewPlayer(m.song)
+	m.song.
 
 	defer player.Close()
 	player.(io.Seeker).Seek(0, io.SeekStart)
 	player.Play()
+	m.startTime = int(time.Now().Unix())
 	m.playing = true
 	m.paused = true
 	for player.IsPlaying() {
@@ -122,6 +129,7 @@ func (m *mp3Player) Load(data []byte) error {
 	if m.playing {
 		m.Stop()
 	}
+
 	decorded, err := mp3.NewDecoder(bytes.NewReader(data))
 	if err != nil {
 		return err
@@ -131,6 +139,15 @@ func (m *mp3Player) Load(data []byte) error {
 		go m.play()
 	}
 	return nil
+}
+
+func (m *mp3Player) GetSongInfo() string {
+	if m.playing == false {
+		return "No music playing right now"
+	}
+	now := int(time.Now().Unix()) - m.startTime
+	t := int(m.song.Length()) / 4 / 44100
+	return fmt.Sprintf("#>%02d:%02d | %02d:%02d<#", t / 60, t % 60, now / 60, now % 60)
 }
 
 func (m *mp3Player) IsPlaying() bool {

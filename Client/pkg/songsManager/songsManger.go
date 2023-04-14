@@ -9,7 +9,7 @@ import (
 type Mp3FileManager interface {
 	Add(name string, input []byte) error
 	Get(name string) ([]byte, error)
-	GetAll() []string
+	GetAll() ([]string, error)
 	Delete(name string) error
 }
 
@@ -28,7 +28,7 @@ type SongsManager interface {
 	Delete(name string) error
 	DeleteLocal(name string) error
 	SaveLocal(name string) error
-	GetAllLocal() []string
+	GetAllLocal() ([]string, error)
 	GetAllRemote() ([]string, error)
 }
 
@@ -258,7 +258,7 @@ func (sm *mySongsManager) SaveLocal(name string) error {
 	return err
 }
 
-func (sm *mySongsManager) GetAllLocal() []string {
+func (sm *mySongsManager) GetAllLocal() ([]string, error) {
 	return sm.fileManager.GetAll()
 }
 
