@@ -42,7 +42,7 @@ func NewMp3Player(ch chan byte, iter Iterator) (Player, error) {
 		return nil, err
 	}
 	<-readyChan
-	return &mp3Player{ctx: otoCtx, iter: iter, paused: true, stop: ch, playing: false, waiting: sync.Mutex{}}, nil
+	return &mp3Player{ctx: otoCtx, iter: iter, paused: false, stop: ch, playing: false, waiting: sync.Mutex{}}, nil
 }
 
 func (m *mp3Player) Play() {
@@ -62,12 +62,13 @@ func (m *mp3Player) play() {
 	player.Play()
 	m.startTime = int(time.Now().Unix())
 	m.playing = true
-	m.paused = true
+	m.paused = false
 	for player.IsPlaying() {
 		select {
 		case sig := <- m.stop:
 			if sig == 1 {
 				player.Pause()
+				m.paused = false
 				m.playing = false
 				m.waiting.Unlock()
 				return
@@ -76,8 +77,8 @@ func (m *mp3Player) play() {
 				player.Pause()
 				for {
 					sig = <-m.stop
+					m.paused = false
 					if sig == 3 {
-						m.paused = false
 						player.Play()
 						break
 					} else {
@@ -122,9 +123,16 @@ func (m *mp3Player) Stop() {
 }
 
 func (m *mp3Player) Load(data []byte) error {
-	paused := m.paused
+	var playNext bool
 	if m.playing {
+		if m.paused == false {
+			playNext = true
+		} else {
+			playNext = false
+		}
 		m.Stop()
+	} else {
+		playNext = false
 	}
 
 	decorded, err := mp3.NewDecoder(bytes.NewReader(data))
@@ -132,7 +140,7 @@ func (m *mp3Player) Load(data []byte) error {
 		return err
 	}
 	m.song = decorded
-	if !paused {
+	if playNext {
 		go m.play()
 	}
 	return nil

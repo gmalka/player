@@ -69,7 +69,7 @@ func (c myController) Run() {
 		switch string(command) {
 		case "add", "addsong", "Add", "AddSong", "addSong":
 			if n == -1 {
-				log.Println("incorrect command")
+				fmt.Printf("#?>Incorrect command\n")
 				continue
 			}
 			err := c.songmanager.Add(string(b[n+1:]))
@@ -78,7 +78,7 @@ func (c myController) Run() {
 			}
 		case "Play", "play":
 			if n != -1 {
-				log.Println("incorrect command")
+				fmt.Printf("#?>Incorrect command\n")
 				continue
 			}
 			if c.player.IsPlaying() {
@@ -94,7 +94,7 @@ func (c myController) Run() {
 			}
 		case "next", "Next", "nextsong", "Nextsong", "NextSong":
 			if n != -1 {
-				log.Println("incorrect command")
+				fmt.Printf("#?>Incorrect command\n")
 				continue
 			}
 			data, err := c.songmanager.Next()
@@ -105,7 +105,7 @@ func (c myController) Run() {
 			}
 		case "pre", "Pre", "presong", "Presong", "PreSong":
 			if n != -1 {
-				fmt.Println("#>Incorrect command")
+				fmt.Printf("#?>Incorrect command\n")
 				continue
 			}
 			data, err := c.songmanager.Pre()
@@ -116,13 +116,13 @@ func (c myController) Run() {
 			}
 		case "pause", "Pause":
 			if n != -1 {
-				log.Println("incorrect command")
+				fmt.Printf("#?>Incorrect command\n")
 				continue
 			}
 			c.player.Pause()
 		case "stop", "Stop":
 			if n != -1 {
-				log.Println("incorrect command")
+				fmt.Printf("#?>Incorrect command\n")
 				continue
 			}
 			c.player.Stop()
@@ -264,6 +264,8 @@ func (c myController) Run() {
 			}
 		case "status", "Status", "info":
 			fmt.Printf("#>Name:%s | Playing: %t\n#>Time: %s\n", c.songmanager.GetCurrent(), c.player.IsPlaying(),  c.player.GetSongInfo())
+		default:
+			fmt.Printf("#?>Unknown command: \"%s\"\n", string(b))
 		}
 	}
 }
