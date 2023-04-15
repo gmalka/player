@@ -2,7 +2,6 @@ package MusicPlayer
 
 import (
 	"bytes"
-	"encoding/binary"
 	"fmt"
 	"io"
 	"sync"
@@ -37,7 +36,6 @@ type mp3Player struct {
 }
 
 func NewMp3Player(ch chan byte, iter Iterator) (Player, error) {
-	io.NewSectionReader()
 	otoCtx, readyChan, err := oto.NewContext(44100, 2, 2)
 	//binary.Read(r, binary.BigEndian)
 	if err != nil {
@@ -58,7 +56,6 @@ func (m *mp3Player) Play() {
 func (m *mp3Player) play() {
 	m.waiting.Lock()
 	player := m.ctx.NewPlayer(m.song)
-	m.song.
 
 	defer player.Close()
 	player.(io.Seeker).Seek(0, io.SeekStart)

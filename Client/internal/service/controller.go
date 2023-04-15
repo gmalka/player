@@ -150,20 +150,30 @@ func (c myController) Run() {
 					log.Println(err)
 				} else {
 					fmt.Println("#>Songs on Server: ")
-					for i, s := range remote {
-						if i % 3 != 0 {
+					var (
+						i int
+						s string
+					)
+					for i, s = range remote {
+						if (i + 1) % 3 != 0 {
 							fmt.Printf("%3d: %-20s | ", i + 1, s)
 						} else {
 							fmt.Printf("%3d: %-20s\n", i + 1, s)
 						}
 					}
+					if (i + 1) % 3 != 0 {
+						fmt.Println()
+					}
 					fmt.Println("#>Local songs: ")
-					for i, s := range local {
-						if i % 3 != 0 {
+					for i, s = range local {
+						if (i + 1) % 3 != 0 {
 							fmt.Printf("%3d: %-20s | ", i + 1, s)
 						} else {
 							fmt.Printf("%3d: %-20s\n", i + 1, s)
 						}
+					}
+					if (i + 1) % 3 != 0 {
+						fmt.Println()
 					}
 				}
 			} else if comm2 := string(b[n+1:]); comm2 == "local" || comm2 == "Local" {
@@ -173,12 +183,19 @@ func (c myController) Run() {
 					continue
 				}
 				fmt.Println("#>Local songs: ")
-				for i, s := range local {
-					if i % 3 != 0 {
+				var (
+					i int
+					s string
+				)
+				for i, s = range local {
+					if (i + 1) % 3 != 0 {
 						fmt.Printf("%3d: %-20s | ", i + 1, s)
 					} else {
 						fmt.Printf("%3d: %-20s\n", i + 1, s)
 					}
+				}
+				if (i + 1) % 3 != 0 {
+					fmt.Println()
 				}
 			} else if comm2 == "remote" || comm2 == "Remote" {
 				remote, err := c.songmanager.GetAllRemote()
@@ -186,12 +203,19 @@ func (c myController) Run() {
 					log.Println(err)
 				}
 				fmt.Println("#>Songs on Server: ")
-				for i, s := range remote {
-					if i % 3 != 0 {
+				var (
+					i int
+					s string
+				)
+				for i, s = range remote {
+					if (i + 1) % 3 != 0 {
 						fmt.Printf("%3d: %-20s | ", i + 1, s)
 					} else {
 						fmt.Printf("%3d: %-20s\n", i + 1, s)
 					}
+				}
+				if (i + 1) % 3 != 0 {
+					fmt.Println()
 				}
 			}
 		case "delete", "Delete":
@@ -223,12 +247,19 @@ func (c myController) Run() {
 			if songs == nil {
 				log.Println("Play list is empty")
 			} else {
-				for i, s := range songs {
-					if i % 3 != 0 {
+				var (
+					i int
+					s string
+				)
+				for i, s = range songs {
+					if (i + 1) % 3 != 0 {
 						fmt.Printf("%3d: %-20s | ", i + 1, s)
 					} else {
 						fmt.Printf("%3d: %-20s\n", i + 1, s)
 					} 
+				}
+				if (i + 1) % 3 != 0 {
+					fmt.Println()
 				}
 			}
 		case "status", "Status", "info":
