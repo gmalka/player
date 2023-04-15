@@ -154,6 +154,21 @@ func (sm *mySongsManager) Delete(id string) error {
 		return errors.New("No songs in list")
 	}
 
+	if id == "*" {
+		pre := sm.first
+		s := sm.first
+		for s != nil {
+			pre = s
+			s = s.next
+			pre.next = nil
+			pre.pre = nil
+		}
+		sm.list = nil
+		sm.first = nil
+		sm.last = nil
+		return nil
+	}
+
 	if id == "" {
 		if sm.list.pre == nil {
 			if sm.list.next == nil {
