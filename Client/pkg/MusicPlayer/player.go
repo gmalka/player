@@ -2,6 +2,7 @@ package MusicPlayer
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"sync"
@@ -15,6 +16,7 @@ type Player interface {
 	Play()
 	Pause()
 	Stop()
+	SetVolume(v int) error
 	Load(data []byte) error
 	IsPlaying() bool
 	GetSongInfo() string
@@ -32,7 +34,7 @@ type mp3Player struct {
 	ctx     			*oto.Context
 	playing, paused 	bool
 	waiting 			sync.Mutex
-	startTime			int
+	startTime, volume	int
 }
 
 func NewMp3Player(ch chan byte, iter Iterator) (Player, error) {
@@ -42,7 +44,7 @@ func NewMp3Player(ch chan byte, iter Iterator) (Player, error) {
 		return nil, err
 	}
 	<-readyChan
-	return &mp3Player{ctx: otoCtx, iter: iter, paused: false, stop: ch, playing: false, waiting: sync.Mutex{}}, nil
+	return &mp3Player{ctx: otoCtx, iter: iter, paused: false, stop: ch, playing: false, waiting: sync.Mutex{}, volume: 100}, nil
 }
 
 func (m *mp3Player) Play() {
@@ -59,6 +61,7 @@ func (m *mp3Player) play() {
 
 	defer player.Close()
 	player.(io.Seeker).Seek(0, io.SeekStart)
+	player.SetVolume(float64(m.volume) / 100)
 	player.Play()
 	m.startTime = int(time.Now().Unix())
 	m.playing = true
@@ -81,12 +84,16 @@ func (m *mp3Player) play() {
 					if sig == 3 {
 						player.Play()
 						break
+					} else if sig == 4 {
+						player.SetVolume(float64(m.volume) / 100)
 					} else {
 						m.playing = false
 						m.waiting.Unlock()
 						return
 					}
 				}
+			} else if sig == 4 {
+				player.SetVolume(float64(m.volume) / 100)
 			}
 		default:
 			time.Sleep(time.Millisecond * 100)
@@ -102,6 +109,20 @@ func (m *mp3Player) play() {
 	}
 	m.Load(b)
 	return
+}
+
+func (m *mp3Player) SetVolume(v int) error {
+	if v > 100 || v < 0 {
+		return errors.New("Incorrect Volume value, must been between 0 and 100")
+	}
+	m.volume = v
+	after := time.After(time.Second * 1)
+	select {
+	case m.stop <- 4:
+	case <- after:
+		return errors.New("Cant set Volume")
+	}
+	return nil
 }
 
 func (m *mp3Player) Pause() {
@@ -158,43 +179,3 @@ func (m *mp3Player) GetSongInfo() string {
 func (m *mp3Player) IsPlaying() bool {
 	return m.playing
 }
-
-/*func (m *mp3Player) NextSong() {
-	if m.songs.next != nil {
-		select {
-		case m.stop <- 1:
-			m.songs = m.songs.next
-			go m.play()
-		default:
-			return
-		}
-	} else {
-		select {
-		case m.stop <- 1:
-			m.songs = m.first
-			go m.play()
-		default:
-			return
-		}
-	}
-}
-
-func (m mp3Player) PreSong() {
-	if m.songs.pre != nil {
-		select {
-		case m.stop <- 1:
-			m.songs = m.songs.pre
-			go m.play()
-		default:
-			return
-		}
-	} else {
-		select {
-		case m.stop <- 1:
-			m.songs = m.last
-			go m.play()
-		default:
-			return
-		}
-	}
-}*/

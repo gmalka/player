@@ -27,7 +27,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//TODO: создать файл конфигов
 	uploadService, err := grpc.NewGrpcClient(viper.GetString("ip"), viper.GetString("port"))
 	if err != nil {
 		log.Fatal(err)
