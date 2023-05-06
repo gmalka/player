@@ -35,7 +35,7 @@ func checkForMp3(input []byte) error {
 
 	for i, b := range buf {
 		if b != mp3Signature[i] {
-			return errors.New("File hasn't type mp3")
+			return errors.New("Error: File hasn't type mp3")
 		}
 	}
 
