@@ -66,6 +66,8 @@ func NewMusicFileManager(path string) (Mp3FileManager, error) {
 		}
 	}
 
+	fmt.Println(m)
+
 	return myMp3FileManager{path: path, files: m, mutex: &sync.Mutex{}}, nil
 }
 
@@ -77,6 +79,7 @@ func (m myMp3FileManager) Add(name string, input []byte) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	if _, ok := m.files[name]; ok {
+		log.Printf("Cant save file %s, File is already exists\n", name)
 		return errors.New("Error: File is already exists")
 	}
 	path := fmt.Sprintf("%s/%s", m.path, name)
@@ -97,6 +100,7 @@ func (m myMp3FileManager) Get(name string) ([]byte, error) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	if _, ok := m.files[name]; !ok {
+		log.Printf("Cant get file %s, File is not exists\n", name)
 		return nil, CantFindFile
 	}
 	path := fmt.Sprintf("%s/%s", m.path, name)
@@ -122,6 +126,7 @@ func (m myMp3FileManager) Delete(name string) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	if _, ok := m.files[name]; !ok {
+		log.Printf("Cant delete file %s, File doesn't exists\n", name)
 		return errors.New("Error: File does not exists")
 	}
 

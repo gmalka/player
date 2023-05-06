@@ -18,7 +18,7 @@ import (
 
 func Start() {
 
-	list, err := net.Listen("tcp", fmt.Sprintf("%s:%s", viper.GetString("ip"), viper.GetString("port")))
+	list, err := net.Listen("tcp", fmt.Sprintf("%s:%s", viper.GetString("ip"), viper.GetString("grpc_port")))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -36,7 +36,7 @@ func Start() {
 
 	serv := new(Server)
 
-	serv.Run("6541", handlers.InitRouter())
+	go serv.Run(viper.GetString("http_port"), handlers.InitRouter())
 	log.Println("Waiting for connect...")
 	grpcServer.Serve(list)
 }
