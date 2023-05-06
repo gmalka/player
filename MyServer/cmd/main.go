@@ -7,6 +7,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+type g struct {
+
+}
+
 func main() {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
