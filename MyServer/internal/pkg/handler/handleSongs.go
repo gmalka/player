@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 func (h *Handler) getSong(w http.ResponseWriter, r *http.Request) {
+	log.Println("New HTTP connection")
 	vars := mux.Vars(r)
 
 	name := vars["name"]
@@ -25,6 +27,7 @@ func (h *Handler) getSong(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getAllSongs(w http.ResponseWriter, r *http.Request) {
+	log.Println("New HTTP connection")
 	str := h.fmanager.GetAll()
 
 	fmt.Println(str)
@@ -40,6 +43,7 @@ func (h *Handler) getAllSongs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) saveSong(w http.ResponseWriter, r *http.Request) {
+	log.Println("New HTTP connection")
 	vars := mux.Vars(r)
 
 	name := vars["name"]
@@ -58,6 +62,7 @@ func (h *Handler) saveSong(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteSong(w http.ResponseWriter, r *http.Request) {
+	log.Println("New HTTP connection")
 	vars := mux.Vars(r)
 	name := vars["name"]
 	

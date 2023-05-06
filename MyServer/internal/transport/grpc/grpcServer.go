@@ -31,8 +31,7 @@ type MusicPlayerService struct {
 }
 
 func (g MusicPlayerService) LoadSong(req *proto.SongRequest, stream proto.MusicPlayerService_LoadSongServer) error {
-	log.Println("loading song")
-
+	log.Println("New GRPC connection")
 	data, err := g.Manager.Get(req.Name)
 	if err != nil {
 		return status.Error(codes.Canceled, err.Error())
@@ -63,12 +62,11 @@ func (g MusicPlayerService) LoadSong(req *proto.SongRequest, stream proto.MusicP
 			return status.Error(codes.Canceled, err.Error())
 		}
 	}
-	log.Println("Finish loading")
 	return nil
 }
 
 func (g MusicPlayerService) GetSongs(req *proto.None, stream proto.MusicPlayerService_GetSongsServer) error {
-	log.Println("loading all songs")
+	log.Println("New GRPC connection")
 	data := g.Manager.GetAll()
 
 	for _, s := range data {
@@ -84,6 +82,5 @@ func (g MusicPlayerService) GetSongs(req *proto.None, stream proto.MusicPlayerSe
 			}
 		}
 	}
-	log.Println("Finish loading")
 	return nil
 }

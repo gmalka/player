@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"sync"
 )
@@ -12,7 +13,7 @@ const (
 	DefaultPath string = "/Users/gmalka/Player/Client/music"
 )
 
-var CantFindFile error = errors.New("File does not exists")
+var CantFindFile error = errors.New("Error: File does not exists")
 
 type Mp3FileManager interface {
 	Add(name string, input []byte) error
@@ -76,7 +77,7 @@ func (m myMp3FileManager) Add(name string, input []byte) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	if _, ok := m.files[name]; ok {
-		return errors.New("File is already exists")
+		return errors.New("Error: File is already exists")
 	}
 	path := fmt.Sprintf("%s/%s", m.path, name)
 	file, err := os.Create(path)
@@ -88,6 +89,7 @@ func (m myMp3FileManager) Add(name string, input []byte) error {
 		return err
 	}
 	m.files[name] = nil
+	log.Printf("Save song %s\n", name)
 	return nil
 }
 
@@ -99,6 +101,7 @@ func (m myMp3FileManager) Get(name string) ([]byte, error) {
 	}
 	path := fmt.Sprintf("%s/%s", m.path, name)
 	data, err := os.ReadFile(path)
+	log.Printf("Returning song named %s\n", name)
 	return data, err
 }
 
@@ -111,6 +114,7 @@ func (m myMp3FileManager) GetAll() []string {
 		result[i] = s
 		i++
 	}
+	log.Printf("Returning all songs\n")
 	return result
 }
 
@@ -118,24 +122,12 @@ func (m myMp3FileManager) Delete(name string) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	if _, ok := m.files[name]; !ok {
-		return errors.New("File does not exists")
+		return errors.New("Error: File does not exists")
 	}
 
 	path := fmt.Sprintf("%s/%s", m.path, name)
 	err := os.Remove(path)
 	delete(m.files, name)
+	log.Printf("Deleted song %s\n", name)
 	return err
 }
-
-/*func (m myMp3FileManager) Save(name string, data []byte) error {
-	if _, ok := m.files[name]; ok {
-		return errors.New(fmt.Sprintf("File, named %s already exists", name))
-	}
-	path := fmt.Sprintf("%s/%s", m.path, name)
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	_, err = f.Write(data)
-	return err
-}*/

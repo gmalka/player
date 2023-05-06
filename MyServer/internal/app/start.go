@@ -37,6 +37,7 @@ func Start() {
 	serv := new(Server)
 
 	serv.Run("6541", handlers.InitRouter())
+	log.Println("Waiting for connect...")
 	grpcServer.Serve(list)
 }
 
