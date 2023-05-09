@@ -100,11 +100,11 @@ func (m *mp3Player) play() {
 		}
 	}
 	player.Pause()
-	m.playing = false
 	m.waiting.Unlock()
 	b, err := m.iter.Next()
 	if err != nil {
 		m.paused = true
+		m.playing = false
 		return
 	}
 	m.Load(b)

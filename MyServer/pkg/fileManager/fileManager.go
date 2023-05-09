@@ -60,13 +60,11 @@ func NewMusicFileManager(path string) (Mp3FileManager, error) {
 				return nil, err
 			}
 			err = checkForMp3(buf)
-			if err != nil {
+			if err == nil {
 				m[f.Name()] = nil
 			}
 		}
 	}
-
-	fmt.Println(m)
 
 	return myMp3FileManager{path: path, files: m, mutex: &sync.Mutex{}}, nil
 }
@@ -74,6 +72,7 @@ func NewMusicFileManager(path string) (Mp3FileManager, error) {
 func (m myMp3FileManager) Add(name string, input []byte) error {
 	err := checkForMp3(input[:3])
 	if err != nil {
+		log.Println("Not mp3 file")
 		return err
 	}
 	m.mutex.Lock()

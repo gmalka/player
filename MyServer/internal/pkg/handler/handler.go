@@ -23,7 +23,6 @@ func (h *Handler) InitRouter() *mux.Router {
 
 	router := mux.NewRouter()
 
-
 	router.HandleFunc("/{name}", h.getSong).Methods("GET")
 	router.HandleFunc("/", h.getAllSongs).Methods("GET")
 	router.HandleFunc("/{name}", h.saveSong).Methods("POST")

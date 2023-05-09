@@ -20,8 +20,8 @@ type Mp3FileManager interface {
 }
 
 type myMp3FileManager struct {
-	path	string
-	files	map[string]interface{}
+	path  string
+	files map[string]interface{}
 }
 
 func NewMusicFileManager(path string) (Mp3FileManager, error) {
@@ -51,12 +51,16 @@ func (m *myMp3FileManager) resetLocalSongs() error {
 			if err != nil {
 				return err
 			}
+			t := true
 			for i, b := range buf {
-				if b !=  mp3Signature[i] {
-					return err
+				if b != mp3Signature[i] {
+					t = false
+					break
 				}
 			}
-			mp[f.Name()] = nil
+			if t {
+				mp[f.Name()] = nil
+			}
 		}
 	}
 	m.files = mp
@@ -90,7 +94,7 @@ func (m *myMp3FileManager) Get(name string) ([]byte, error) {
 }
 
 func (m *myMp3FileManager) GetAll() ([]string, error) {
-	files, err := os.ReadDir(m.path)
+	/*files, err := os.ReadDir(m.path)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +102,7 @@ func (m *myMp3FileManager) GetAll() ([]string, error) {
 		if _, ok := m.files[f.Name()]; !ok {
 			m.files[f.Name()] = nil
 		}
-	}
+	}*/
 
 	result := make([]string, len(m.files))
 	i := 0
