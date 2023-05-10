@@ -17,6 +17,7 @@ type Mp3FileManager interface {
 	Get(name string) ([]byte, error)
 	GetAll() ([]string, error)
 	Delete(name string) error
+	Contains(str string) bool
 }
 
 type myMp3FileManager struct {
@@ -111,6 +112,13 @@ func (m *myMp3FileManager) GetAll() ([]string, error) {
 		i++
 	}
 	return result, nil
+}
+
+func (m *myMp3FileManager) Contains(str string) bool {
+	if _, ok := m.files[str]; ok {
+		return true
+	}
+	return false
 }
 
 func (m *myMp3FileManager) Delete(name string) error {

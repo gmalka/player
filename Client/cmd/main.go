@@ -1,8 +1,12 @@
 package main
 
 import (
+	"io"
 	"log"
 
+	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
+	cli "github.com/gmalka/Client/internal/CLI"
 	"github.com/gmalka/Client/internal/service"
 	"github.com/gmalka/Client/internal/transport/grpc"
 	"github.com/gmalka/Client/pkg/MusicPlayer"
@@ -10,6 +14,15 @@ import (
 	"github.com/gmalka/Client/pkg/songsManager"
 	"github.com/spf13/viper"
 )
+
+
+type mod interface {
+	Height() int
+	Spacing() int
+	Update(msg tea.Msg, m *list.Model) tea.Cmd
+	Render(w io.Writer, m list.Model, index int, listItem list.Item)
+}
+
 
 func main() {
 	ch := make(chan byte)
@@ -40,5 +53,7 @@ func main() {
 	}
 
 	controller := service.NewController(player, manager)
-	controller.Run()
+	
+	cli.RunModel(&controller, []string{
+		"Add", "Play", "Pause", "Set Volume", "Next", "Pre", "Playlist", "Get all songs", "Delete", "Stop", "Delete from local storage", "Save song in local storage"})
 }

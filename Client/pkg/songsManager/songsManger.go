@@ -3,7 +3,6 @@ package songsManager
 import (
 	"errors"
 	"fmt"
-	"strconv"
 )
 
 type Mp3FileManager interface {
@@ -11,6 +10,7 @@ type Mp3FileManager interface {
 	Get(name string) ([]byte, error)
 	GetAll() ([]string, error)
 	Delete(name string) error
+	Contains(str string) bool
 }
 
 type RemoteFileUploadService interface {
@@ -25,7 +25,7 @@ type SongsManager interface {
 	Pre() ([]byte, error)
 	GetPlayList() []string
 	GetCurrent() string
-	Delete(name string) error
+	Delete(id int) error
 	DeleteLocal(name string) error
 	SaveLocal(name string) error
 	GetAllLocal() ([]string, error)
@@ -149,12 +149,12 @@ func (sm *mySongsManager) GetPlayList() []string {
 	return s
 }
 
-func (sm *mySongsManager) Delete(id string) error {
+func (sm *mySongsManager) Delete(id int) error {
 	if sm.list == nil {
 		return errors.New("No songs in list")
 	}
 
-	if id == "*" {
+	if id == 0 {
 		pre := sm.first
 		s := sm.first
 		for s != nil {
@@ -169,7 +169,7 @@ func (sm *mySongsManager) Delete(id string) error {
 		return nil
 	}
 
-	if id == "" {
+	/*if id == 0 {
 		if sm.list.pre == nil {
 			if sm.list.next == nil {
 				sm.last = nil
@@ -188,19 +188,15 @@ func (sm *mySongsManager) Delete(id string) error {
 			cur.next = nil
 			cur.pre = nil
 		}
-	} else {
+	} else {*/
 		cur := sm.first
-		num, err := strconv.Atoi(id)
-		if err != nil {
-			return err
-		}
-		for i := 1; cur != nil && i < num; cur, i = cur.next, i + 1 {
+		for i := 1; cur != nil && i < id; cur, i = cur.next, i + 1 {
 		}
 		if cur == nil {
-			return errors.New(fmt.Sprintf("Cant find song with id: %s", id))
+			return errors.New(fmt.Sprintf("Cant find song with id: %d", id))
 		}
 		sm.deleteFromList(cur)
-	}
+	//}
 
 	return nil
 }
@@ -246,7 +242,7 @@ func (sm *mySongsManager) deleteFromList(cur *song) {
 			sm.last = cur.pre
 			sm.last.next = nil
 		} else {
-			cur.next.pre = cur.next
+			cur.next.pre = cur.pre
 		}
 		cur.pre.next = cur.next
 		cur.next = nil
@@ -278,7 +274,19 @@ func (sm *mySongsManager) GetAllLocal() ([]string, error) {
 }
 
 func (sm *mySongsManager) GetAllRemote() ([]string, error) {
-	return sm.rFileManager.GetAll()
+	s, err := sm.rFileManager.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	j := 0
+	for i := 0; i < len(s); i++ {
+		if !sm.fileManager.Contains(s[i]) {
+			s[j] = s[i]
+			j++
+		}
+	}
+	s = s[:j]
+	return s, nil
 }
 
 func (sm *mySongsManager) GetCurrent() string {
