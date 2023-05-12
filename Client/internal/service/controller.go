@@ -5,20 +5,12 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 
 type myController struct {
 	player player
 	songmanager songmanager
-}
-
-type clieModel interface {
-	Init() tea.Cmd
-	Update(msg tea.Msg) (tea.Model, tea.Cmd)
-	View() string
 }
 
 type player interface {

@@ -33,14 +33,14 @@ type SongsManager interface {
 }
 
 type mySongsManager struct {
-	id				  int
+	id                int
 	list, first, last *song
 	fileManager       Mp3FileManager
 	rFileManager      RemoteFileUploadService
 }
 
 type song struct {
-	id		  int
+	id        int
 	name      string
 	local     bool
 	next, pre *song
@@ -153,50 +153,17 @@ func (sm *mySongsManager) Delete(id int) error {
 	if sm.list == nil {
 		return errors.New("No songs in list")
 	}
-
-	if id == 0 {
-		pre := sm.first
-		s := sm.first
-		for s != nil {
-			pre = s
-			s = s.next
-			pre.next = nil
-			pre.pre = nil
-		}
-		sm.list = nil
-		sm.first = nil
-		sm.last = nil
-		return nil
+	if id <= 0 {
+		return errors.New("Incorrect id")
 	}
 
-	/*if id == 0 {
-		if sm.list.pre == nil {
-			if sm.list.next == nil {
-				sm.last = nil
-			}
-			cur := sm.list
-			sm.list = sm.list.next
-			sm.first = sm.list
-			cur.pre = nil
-			cur.next = nil
-		} else {
-			cur := sm.list
-			if sm.last == cur {
-				sm.last = cur.pre
-			}
-			sm.list.pre = sm.list.next
-			cur.next = nil
-			cur.pre = nil
-		}
-	} else {*/
-		cur := sm.first
-		for i := 1; cur != nil && i < id; cur, i = cur.next, i + 1 {
-		}
-		if cur == nil {
-			return errors.New(fmt.Sprintf("Cant find song with id: %d", id))
-		}
-		sm.deleteFromList(cur)
-	//}
+	cur := sm.first
+	for i := 1; cur != nil && i < id; cur, i = cur.next, i+1 {
+	}
+	if cur == nil {
+		return errors.New(fmt.Sprintf("Cant find song with id: %d", id))
+	}
+	sm.deleteFromList(cur)
 
 	return nil
 }
@@ -256,7 +223,7 @@ func (sm *mySongsManager) SaveLocal(name string) error {
 	}
 	cur := sm.first
 	for ; cur != nil; cur = cur.next {
-		if cur.name == name &&  cur.local == true {
+		if cur.name == name && cur.local == true {
 			return errors.New(fmt.Sprintf("File already exists: %s", name))
 		}
 	}

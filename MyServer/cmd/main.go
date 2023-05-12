@@ -5,6 +5,7 @@ import (
 
 	"github.com/gmalka/MyServer/internal/app"
 	"github.com/spf13/viper"
+	_ "github.com/onsi/ginkgo/v2/ginkgo"
 )
 
 type g struct {
