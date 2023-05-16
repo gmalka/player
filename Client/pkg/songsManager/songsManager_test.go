@@ -10,7 +10,7 @@ import (
 )
 
 var _ = Describe("SongsManager", func() {
-	var sm SongsManager
+	var sm songsManager.SongsManager
 	var fm Mp3FileManagerDouble
 	var rmf RemoteFileUploadServiceDouble
 	Context("Song Manager testing: ", func() {

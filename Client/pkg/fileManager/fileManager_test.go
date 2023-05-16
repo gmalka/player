@@ -2,6 +2,7 @@ package fileManager_test
 
 import (
 	"os"
+	"sort"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -52,7 +53,10 @@ var _ = Describe("FileManager", func() {
 		})
 
 		It("GetAll", func() {
-			Expect(fm.GetAll()).To(Equal([]string{"music1.mp3", "music2.mp3"}))
+			s, err := fm.GetAll()
+			Expect(err).Should(Succeed())
+			sort.Strings(s)
+			Expect(s).To(Equal([]string{"music1.mp3", "music2.mp3"}))
 		})
 
 		It("Delete", func() {

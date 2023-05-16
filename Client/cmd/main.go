@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 
@@ -8,11 +9,14 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	cli "github.com/gmalka/Client/internal/CLI"
 	"github.com/gmalka/Client/internal/service"
-	"github.com/gmalka/Client/internal/transport/grpc"
+	myGrpc "github.com/gmalka/Client/internal/transport/grpc"
 	"github.com/gmalka/Client/pkg/MusicPlayer"
 	"github.com/gmalka/Client/pkg/fileManager"
 	"github.com/gmalka/Client/pkg/songsManager"
 	"github.com/spf13/viper"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 
@@ -40,7 +44,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	uploadService, err := grpc.NewGrpcClient(viper.GetString("ip"), viper.GetString("port"))
+	ip := viper.GetString("ip")
+	port := viper.GetString("port")
+
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+
+	path := fmt.Sprintf("%s:%s", ip, port)
+	conn, err := grpc.Dial(path, opts...)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	uploadService, err := myGrpc.NewGrpcClient(conn)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,6 +70,6 @@ func main() {
 
 	controller := service.NewController(player, manager)
 	
-	cli.RunModel(&controller, []string{
+	cli.RunModel(controller, []string{
 		"Add", "Play", "Pause", "Set Volume", "Next", "Pre", "Playlist", "Get all songs", "Delete", "Stop", "Delete from local storage", "Save song in local storage"})
 }

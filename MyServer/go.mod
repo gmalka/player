@@ -11,6 +11,7 @@ require (
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/gcapizzi/moka v0.0.0-20171105135209-e64c0ffdbd70
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect

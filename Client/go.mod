@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/bubbles v0.15.0
 	github.com/charmbracelet/bubbletea v0.23.2
 	github.com/charmbracelet/lipgloss v0.7.1
+	github.com/gcapizzi/moka v0.0.0-20171105135209-e64c0ffdbd70
 	github.com/gmalka/Player v0.0.0-20230412230130-33c0e5c90d64
 	github.com/hajimehoshi/go-mp3 v0.3.4
 	github.com/hajimehoshi/oto/v2 v2.4.0
@@ -22,7 +23,6 @@ require (
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/ebitengine/purego v0.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/gcapizzi/moka v0.0.0-20171105135209-e64c0ffdbd70 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -39,6 +39,7 @@ require (
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.1 // indirect
+	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sahilm/fuzzy v0.1.0 // indirect

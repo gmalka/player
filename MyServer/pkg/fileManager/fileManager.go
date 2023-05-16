@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
 	"sync"
 )
 
@@ -117,6 +118,7 @@ func (m myMp3FileManager) GetAll() []string {
 		result[i] = s
 		i++
 	}
+	sort.Strings(result)
 	log.Printf("Returning all songs\n")
 	return result
 }

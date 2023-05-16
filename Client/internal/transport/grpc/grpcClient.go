@@ -3,11 +3,9 @@ package grpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/gmalka/Player/build/proto"
 )
@@ -23,7 +21,7 @@ type myGrpcClient struct {
 	client proto.MusicPlayerServiceClient
 }
 
-func NewGrpcClient(ip, port string) (RemoteFileUploadService, error) {
+/*func NewGrpcClient(ip, port string) (RemoteFileUploadService, error) {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
@@ -35,6 +33,11 @@ func NewGrpcClient(ip, port string) (RemoteFileUploadService, error) {
 	}
 
 	client := proto.NewMusicPlayerServiceClient(conn)
+	return myGrpcClient{client: client}, nil
+}*/
+
+func NewGrpcClient(cc grpc.ClientConnInterface) (RemoteFileUploadService, error) {
+	client := proto.NewMusicPlayerServiceClient(cc)
 	return myGrpcClient{client: client}, nil
 }
 

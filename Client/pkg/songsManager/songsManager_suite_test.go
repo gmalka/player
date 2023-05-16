@@ -14,18 +14,12 @@ type RemoteFileUploadService interface {
 	GetAll() ([]string, error)
 }
 
-type SongsManager interface {
+type Mp3FileManager interface {
+	Add(name string, input []byte) error
 	Get(name string) ([]byte, error)
-	Add(name string) error
-	Next() ([]byte, error)
-	Pre() ([]byte, error)
-	GetPlayList() []string
-	GetCurrent() string
-	Delete(id int) error
-	DeleteLocal(name string) error
-	SaveLocal(name string) error
-	GetAllLocal() ([]string, error)
-	GetAllRemote() ([]string, error)
+	GetAll() ([]string, error)
+	Delete(name string) error
+	Contains(str string) bool
 }
 
 type Mp3FileManagerDouble struct {

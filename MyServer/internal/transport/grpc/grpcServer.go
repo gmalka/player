@@ -18,15 +18,13 @@ type GrpcServer interface {
 	mustEmbedUnimplementedMusicPlayerServiceServer()
 }
 
-type Mp3FileManager interface {
-	Add(name string, input []byte) error
+type Mp3GetFileManager interface {
 	Get(name string) ([]byte, error)
 	GetAll() []string
-	Delete(name string) error
 }
 
 type MusicPlayerService struct {
-	Manager Mp3FileManager
+	Manager Mp3GetFileManager
 	proto.UnimplementedMusicPlayerServiceServer
 }
 

@@ -24,7 +24,7 @@ func Start() {
 	}
 
 	grpcServer := grpc.NewServer()
-	manager, err := fileManager.NewMusicFileManager("/Users/gmalka/Player/MyServer/music")
+	manager, err := fileManager.NewMusicFileManager("./music")
 	if err != nil {
 		log.Fatal(err)
 	}

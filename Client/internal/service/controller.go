@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 )
 
@@ -13,6 +12,22 @@ type myController struct {
 	songmanager songmanager
 }
 
+type Controller interface {
+	SetVolume(str string) error
+	AddSong(str string) error
+	GetPlayList() ([]string, error)
+	DeleteLocal(str string) error
+	DeleteSong(id int) error
+	GetAllSongs(str string) ([][]string, error)
+	SaveSong(str string) error
+	StopSong()
+	PauseSong()
+	PreSong() error
+	NextSong() error
+	PlaySong(str string) error
+	GetCurrent() string
+}
+
 type player interface {
 	Play()
 	Pause()
@@ -20,7 +35,6 @@ type player interface {
 	SetVolume(v int) error
  	Load(data []byte) error
 	IsPlaying() bool
-	GetSongInfo() string
 }
 
 type songmanager interface {
@@ -37,8 +51,8 @@ type songmanager interface {
 	GetAllRemote() ([]string, error)
 }
 
-func NewController(MusicPlayer player, musicFileManager songmanager) myController {
-	return myController{player: MusicPlayer, songmanager: musicFileManager}
+func NewController(MusicPlayer player, musicFileManager songmanager) Controller {
+	return &myController{player: MusicPlayer, songmanager: musicFileManager}
 }
 
 func (c *myController) SetVolume(str string) error {
@@ -48,7 +62,7 @@ func (c *myController) SetVolume(str string) error {
 	}
 	err = c.player.SetVolume(v)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 	return nil
 }
@@ -124,16 +138,9 @@ func (c *myController) GetAllSongs(str string) ([][]string, error) {
 }
 
 func (c *myController) SaveSong(str string) error {
-	if str != "" {
-		err := c.songmanager.SaveLocal(str)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := c.songmanager.SaveLocal("")
-		if err != nil {
-			return err
-		}
+	err := c.songmanager.SaveLocal(str)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -151,9 +158,8 @@ func (c *myController) PreSong() error {
 	if err != nil {
 		return err
 	} else {
-		c.player.Load(data)
+		return c.player.Load(data)
 	}
-	return nil
 }
 
 func (c *myController) NextSong() error {
@@ -161,9 +167,8 @@ func (c *myController) NextSong() error {
 	if err != nil {
 		return err
 	} else {
-		c.player.Load(data)
+		return c.player.Load(data)
 	}
-	return nil
 }
 
 func (c *myController) PlaySong(str string) error {
@@ -174,7 +179,10 @@ func (c *myController) PlaySong(str string) error {
 		if err != nil {
 			return err
 		} else {
-			c.player.Load(data)
+			err := c.player.Load(data)
+			if err != nil {
+				return err
+			}
 			c.player.Play()
 		}
 	}
