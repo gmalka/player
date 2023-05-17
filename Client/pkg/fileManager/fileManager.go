@@ -3,6 +3,7 @@ package fileManager
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -49,6 +50,9 @@ func (m *myMp3FileManager) resetLocalSongs() error {
 				return err
 			}
 			_, err = file.Read(buf)
+			if err == io.EOF {
+				break
+			}
 			if err != nil {
 				return err
 			}

@@ -19,14 +19,12 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-
 type mod interface {
 	Height() int
 	Spacing() int
 	Update(msg tea.Msg, m *list.Model) tea.Cmd
 	Render(w io.Writer, m list.Model, index int, listItem list.Item)
 }
-
 
 func main() {
 	ch := make(chan byte)
@@ -51,7 +49,12 @@ func main() {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
-	path := fmt.Sprintf("%s:%s", ip, port)
+	path := ""
+	if port != "" {
+		path = fmt.Sprintf("%s:%s", ip, port)
+	} else {
+		path = ip
+	}
 	conn, err := grpc.Dial(path, opts...)
 	if err != nil {
 		log.Fatalln(err)
@@ -60,7 +63,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	manager := songsManager.NewSongManager(mp3FileManager, uploadService)
 
 	player, err := MusicPlayer.NewMp3Player(ch, manager)
@@ -69,7 +72,7 @@ func main() {
 	}
 
 	controller := service.NewController(player, manager)
-	
+
 	cli.RunModel(controller, []string{
 		"Add", "Play", "Pause", "Set Volume", "Next", "Pre", "Playlist", "Get all songs", "Delete", "Stop", "Delete from local storage", "Save song in local storage"})
 }

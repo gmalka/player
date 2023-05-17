@@ -8,8 +8,6 @@
 
 FROM golang:1.20
 WORKDIR /MyApp/
-RUN apt update && apt-get install pulseaudio -y
-ENV PULSE_SERVER=docker.for.mac.localhost
 COPY . .
 RUN apt update && apt install -y libasound2-dev && go mod tidy && go build -o ./app ./cmd/main.go
 CMD ["./app"]

@@ -1,3 +1,3 @@
-ip: "localhost"
+ip: ""
 grpc_port: "9879"
 http_port: "6541"
