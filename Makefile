@@ -1,14 +1,19 @@
-all			:	clean net server client
+all			:	net server client
 
 net			:
-	-docker network create MyMusicPlayer
+	docker network create MyMusicPlayer
 
 server		:
+	-docker stop serv
+	-docker rm serv
 	-docker build -t server ./MyServer
-	-docker run -d --rm -p 9879:9879 --net=MyMusicPlayer --name serv server
+	docker run -d --rm -p 9879:9879 -p 6541:6541 --net=MyMusicPlayer --name serv server
+
 client		:
+	-docker stop cli
+	-docker rm cli
 	-docker build -t client ./Client
-	-docker run -it --name cli --device /dev/snd --net=MyMusicPlayer client
+	docker run -it --name cli --device /dev/snd --net=MyMusicPlayer client
 
 clean		:
 	-docker stop serv
