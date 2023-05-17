@@ -1,4 +1,4 @@
-all			:			clean net server client
+all			:	clean net server client
 
 net			:
 	-docker network create MyMusicPlayer
