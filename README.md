@@ -13,13 +13,15 @@
    ## 🛠 Testing and Usage:
     # Clone the project and access the folder
       git clone https://github.com/gmalka/player.git
-    # Perform make to build the project
+    # Perform make to run server in container
+      make server
+    # Perform make to run client without container
+      make clientLocal
+    # Perform make to build and run project in containers
       make
-    # Clean up the output files with
+     ❗ Note: Music ifrom container may not always be displayed correctly ❗
+    # Clean up
       make fclean
-    
-   ### ❗ Note:
-    music will only play on linux OS
     
    ## 🎬 Demonstration(example):
 ![hippo](https://github.com/gmalka/player/assets/94842625/e70e1406-79ae-4d21-a6e4-615312d6e3b7)
