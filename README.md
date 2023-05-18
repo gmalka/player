@@ -22,3 +22,4 @@
     music will only play on linux OS
     
    ## 🎬 Demonstration(example):
+![hippo](https://github.com/gmalka/player/assets/94842625/e70e1406-79ae-4d21-a6e4-615312d6e3b7)
