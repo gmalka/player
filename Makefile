@@ -18,6 +18,9 @@ server		:
 	-docker build -t server ./MyServer
 	-docker run -d --rm -p 9879:9879 -p 6541:6541 --net=MyMusicPlayer --name serv server
 
+clientLocal		:
+	cd Client && go mod tidy && go run cmd/main.go -ip=localhost
+
 clientLinux		:
 	-docker stop cli     
 	-docker rm cli
