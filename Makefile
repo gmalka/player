@@ -29,15 +29,29 @@ clientMac		:
 	-docker build -t client ./Client
 	-docker run -it --name cli --device /dev/null --net=MyMusicPlayer client
 
-clean		:
+test			:
+	@echo "	Building Client tests"
+	@-docker build -t clienttest -f ./Client/Dockerfile_test ./Client &> /dev/null
+	@echo "	Running Client tests"
+	@docker run --name clitest clienttest
+	@echo "	Building Server tests"
+	@-docker build -t servertest -f ./MyServer/Dockerfile_test ./MyServer &> /dev/null
+	@echo "	Running Server tests"
+	@docker run --name servtest servertest
+	@docker rm servtest &> /dev/null
+	@docker rm clitest &> /dev/null
+
+clean			:
 	-docker stop serv
 	-docker stop cli
 	-docker network rm MyMusicPlayer
 	-docker rm serv
 	-docker rm cli
 
-fclean		:	clean
+fclean			:	clean
 	-docker image rm server
 	-docker image rm client
+	-docker image rm clienttest
+	-docker image rm servertest
 
-remake		:	fclean all
+remake			:	fclean all

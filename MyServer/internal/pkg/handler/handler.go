@@ -12,11 +12,12 @@ type Mp3FileManager interface {
 }
 
 type Handler struct {
+	doLog    bool
 	fmanager Mp3FileManager
 }
 
-func NewHandler(fmanager Mp3FileManager) *Handler {
-	return &Handler{fmanager: fmanager}
+func NewHandler(fmanager Mp3FileManager, doLog bool) *Handler {
+	return &Handler{fmanager: fmanager, doLog: doLog}
 }
 
 func (h *Handler) InitRouter() *mux.Router {

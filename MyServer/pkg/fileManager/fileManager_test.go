@@ -26,11 +26,11 @@ var _ = Describe("FileManager", func() {
 			f.Write([]byte{73, 68, 52})
 			f.Close()
 
-			fm, err = fileManager.NewMusicFileManager("./someDir")
+			fm, err = fileManager.NewMusicFileManager("./someDir", false)
 			Expect(err).Should(Succeed())
 		})
 
-		It("Add", func () {
+		It("Add", func() {
 			Expect(fm.Add("music3.mp3", []byte{73, 68, 51, 3})).Should(Succeed())
 			Expect(fm.Get("music3.mp3")).To(Equal([]byte{73, 68, 51, 3}))
 
@@ -40,7 +40,7 @@ var _ = Describe("FileManager", func() {
 			Expect(err).ShouldNot(Succeed())
 		})
 
-		It("Get", func () {
+		It("Get", func() {
 			Expect(fm.Get("music2.mp3")).To(Equal([]byte{73, 68, 51, 2}))
 
 			Expect(fm.Add("music3.mp3", []byte{73, 68, 51, 3})).Should(Succeed())
@@ -52,14 +52,14 @@ var _ = Describe("FileManager", func() {
 			Expect(err).ShouldNot(Succeed())
 		})
 
-		It("GetAll", func () {
+		It("GetAll", func() {
 			Expect(fm.GetAll()).To(Equal([]string{"music1.mp3", "music2.mp3"}))
 
 			Expect(fm.Add("music3.mp3", []byte{73, 68, 51, 3})).Should(Succeed())
 			Expect(fm.GetAll()).To(Equal([]string{"music1.mp3", "music2.mp3", "music3.mp3"}))
 		})
 
-		It("Delete", func () {
+		It("Delete", func() {
 			Expect(fm.GetAll()).To(Equal([]string{"music1.mp3", "music2.mp3"}))
 
 			Expect(fm.Delete("music1.mp3")).Should(Succeed())

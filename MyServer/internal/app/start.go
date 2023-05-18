@@ -24,15 +24,15 @@ func Start() {
 	}
 
 	grpcServer := grpc.NewServer()
-	manager, err := fileManager.NewMusicFileManager("./music")
+	manager, err := fileManager.NewMusicFileManager("./music", true)
 	if err != nil {
 		log.Fatal(err)
 	}
-	MusicPlayerService := &mygrpc.MusicPlayerService{Manager: manager}
+	MusicPlayerService := &mygrpc.MusicPlayerService{Manager: manager, DoLog: true}
 
 	proto.RegisterMusicPlayerServiceServer(grpcServer, MusicPlayerService)
 
-	handlers := handler.NewHandler(manager)
+	handlers := handler.NewHandler(manager, true)
 
 	serv := new(Server)
 

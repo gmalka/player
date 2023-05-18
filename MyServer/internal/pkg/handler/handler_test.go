@@ -25,11 +25,11 @@ var _ = Describe("Handler", func() {
 	Context("Song Manager testing: ", func() {
 		BeforeEach(func() {
 			sm = NewMp3FileManagerDouble()
-			h := handler.NewHandler(sm)
+			h := handler.NewHandler(sm, false)
 			ts = httptest.NewServer(h.InitRouter())
 		})
 
-		It("Get song", func () {
+		It("Get song", func() {
 			AllowDouble(sm).To(ReceiveCallTo("Get").With("music1.mp3").AndReturn([]byte{1, 2, 3}, nil))
 			resp, err := http.Get(fmt.Sprintf("%s/music1.mp3", ts.URL))
 			Expect(err).Should(Succeed())
@@ -43,14 +43,14 @@ var _ = Describe("Handler", func() {
 			Expect(resp.Status).To(Equal("400 Bad Request"))
 		})
 
-		It("Save song", func () {
+		It("Save song", func() {
 			AllowDouble(sm).To(ReceiveCallTo("Add").With("music1.mp3", []byte{1, 2, 3}).AndReturn(nil))
 			resp, err := http.Post(fmt.Sprintf("%s/music1.mp3", ts.URL), "audio/mpeg", bytes.NewReader([]byte{1, 2, 3}))
 			Expect(err).Should(Succeed())
 			Expect(resp.Status).To(Equal("200 OK"))
 		})
 
-		It("Get All songs", func () {
+		It("Get All songs", func() {
 			AllowDouble(sm).To(ReceiveCallTo("GetAll").With().AndReturn([]string{"1", "2", "3"}))
 			resp, err := http.Get(fmt.Sprintf("%s", ts.URL))
 			b, err := ioutil.ReadAll(resp.Body)
@@ -61,7 +61,7 @@ var _ = Describe("Handler", func() {
 			Expect(resp.Status).To(Equal("200 OK"))
 		})
 
-		It("Get All songs", func () {
+		It("Get All songs", func() {
 			AllowDouble(sm).To(ReceiveCallTo("Delete").With("music1.mp3").AndReturn(nil))
 			client := &http.Client{}
 			req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/music1.mp3", ts.URL), nil)

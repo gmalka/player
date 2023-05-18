@@ -1,0 +1,5 @@
+FROM golang:1.20 AS test
+WORKDIR /MyApp/
+COPY . .
+RUN apt update && apt install -y libasound2-dev && go mod tidy && go install github.com/onsi/ginkgo/v2/ginkgo && go get github.com/onsi/gomega/...
+CMD ["ginkgo", "-r"]

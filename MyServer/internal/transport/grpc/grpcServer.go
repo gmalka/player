@@ -24,12 +24,15 @@ type Mp3GetFileManager interface {
 }
 
 type MusicPlayerService struct {
+	DoLog bool
 	Manager Mp3GetFileManager
 	proto.UnimplementedMusicPlayerServiceServer
 }
 
 func (g MusicPlayerService) LoadSong(req *proto.SongRequest, stream proto.MusicPlayerService_LoadSongServer) error {
-	log.Println("New GRPC connection")
+	if g.DoLog {
+		log.Println("New GRPC connection")
+	}
 	data, err := g.Manager.Get(req.Name)
 	if err != nil {
 		return status.Error(codes.Canceled, err.Error())
@@ -64,7 +67,9 @@ func (g MusicPlayerService) LoadSong(req *proto.SongRequest, stream proto.MusicP
 }
 
 func (g MusicPlayerService) GetSongs(req *proto.None, stream proto.MusicPlayerService_GetSongsServer) error {
-	log.Println("New GRPC connection")
+	if g.DoLog {
+		log.Println("New GRPC connection")
+	}
 	data := g.Manager.GetAll()
 
 	for _, s := range data {

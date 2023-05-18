@@ -11,7 +11,9 @@ import (
 )
 
 func (h *Handler) getSong(w http.ResponseWriter, r *http.Request) {
-	log.Println("New HTTP connection")
+	if h.doLog {
+		log.Println("New HTTP connection")
+	}
 	vars := mux.Vars(r)
 
 	name := vars["name"]
@@ -23,11 +25,13 @@ func (h *Handler) getSong(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("name", name)
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
-	
+
 }
 
 func (h *Handler) getAllSongs(w http.ResponseWriter, r *http.Request) {
-	log.Println("New HTTP connection")
+	if h.doLog {
+		log.Println("New HTTP connection")
+	}
 	str := h.fmanager.GetAll()
 
 	fmt.Println(str)
@@ -43,11 +47,13 @@ func (h *Handler) getAllSongs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) saveSong(w http.ResponseWriter, r *http.Request) {
-	log.Println("New HTTP connection")
+	if h.doLog {
+		log.Println("New HTTP connection")
+	}
 	vars := mux.Vars(r)
 
 	name := vars["name"]
-	
+
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error: Cant save file", http.StatusBadRequest)
@@ -62,10 +68,12 @@ func (h *Handler) saveSong(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteSong(w http.ResponseWriter, r *http.Request) {
-	log.Println("New HTTP connection")
+	if h.doLog {
+		log.Println("New HTTP connection")
+	}
 	vars := mux.Vars(r)
 	name := vars["name"]
-	
+
 	err := h.fmanager.Delete(name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

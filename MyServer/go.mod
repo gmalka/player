@@ -9,6 +9,8 @@ require (
 	google.golang.org/protobuf v1.30.0
 )
 
+require github.com/onsi/ginkgo v1.16.5 // indirect
+
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gcapizzi/moka v0.0.0-20171105135209-e64c0ffdbd70
@@ -20,8 +22,8 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/onsi/ginkgo/v2 v2.9.4 // indirect
-	github.com/onsi/gomega v1.27.6 // indirect
+	github.com/onsi/ginkgo/v2 v2.9.4
+	github.com/onsi/gomega v1.27.6
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
