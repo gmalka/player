@@ -65,8 +65,8 @@ func main() {
 	}
 
 	manager := songsManager.NewSongManager(mp3FileManager, uploadService)
-
 	player, err := MusicPlayer.NewMp3Player(ch, manager)
+	fmt.Print("\033[H\033[2J")
 	if err != nil {
 		log.Fatal(err)
 	}
