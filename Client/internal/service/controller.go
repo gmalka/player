@@ -6,9 +6,9 @@ import (
 	"strconv"
 )
 
-
 type myController struct {
-	player player
+	preSong     string
+	player      player
 	songmanager songmanager
 }
 
@@ -33,7 +33,7 @@ type player interface {
 	Pause()
 	Stop()
 	SetVolume(v int) error
- 	Load(data []byte) error
+	Load(data []byte) error
 	IsPlaying() bool
 }
 
@@ -66,14 +66,22 @@ func (c *myController) SetVolume(str string) error {
 	}
 	return nil
 }
+
 func (c *myController) GetCurrent() string {
+	if c.player.IsPlaying() {
+		return c.preSong
+	}
 	return c.songmanager.GetCurrent()
 }
 
 func (c *myController) AddSong(str string) error {
 	err := c.songmanager.Add(str)
+
 	if err != nil {
 		return errors.New(fmt.Sprintf("Cant find song %s", str))
+	}
+	if c.preSong == "" {
+		c.preSong = str
 	}
 	return nil
 }
@@ -158,6 +166,7 @@ func (c *myController) PreSong() error {
 	if err != nil {
 		return err
 	} else {
+		c.preSong = c.songmanager.GetCurrent()
 		return c.player.Load(data)
 	}
 }
@@ -167,6 +176,7 @@ func (c *myController) NextSong() error {
 	if err != nil {
 		return err
 	} else {
+		c.preSong = c.songmanager.GetCurrent()
 		return c.player.Load(data)
 	}
 }
