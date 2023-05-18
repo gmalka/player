@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -27,6 +28,10 @@ type mod interface {
 }
 
 func main() {
+	var ip string
+	flag.StringVar(&ip, "ip", "serv", "ip address")
+	flag.Parse()
+
 	ch := make(chan byte)
 	defer close(ch)
 
@@ -42,7 +47,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ip := viper.GetString("ip")
 	port := viper.GetString("port")
 
 	opts := []grpc.DialOption{

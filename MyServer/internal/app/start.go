@@ -17,7 +17,6 @@ import (
 )
 
 func Start() {
-
 	list, err := net.Listen("tcp", fmt.Sprintf("%s:%s", viper.GetString("ip"), viper.GetString("grpc_port")))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

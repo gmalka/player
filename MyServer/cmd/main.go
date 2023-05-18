@@ -8,7 +8,6 @@ import (
 )
 
 type g struct {
-
 }
 
 func main() {

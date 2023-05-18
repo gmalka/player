@@ -12,6 +12,7 @@ net			:
 	-docker network create MyMusicPlayer
 
 server		:
+	-docker network create MyMusicPlayer
 	-docker stop serv
 	-docker rm serv
 	-docker build -t server ./MyServer
