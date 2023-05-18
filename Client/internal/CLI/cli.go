@@ -14,7 +14,7 @@ import (
 
 const (
 	defaultWidth = 20
- 	listHeight = 14
+	listHeight   = 14
 )
 
 type Controller interface {
@@ -34,33 +34,33 @@ type Controller interface {
 }
 
 type model struct {
-	songList  			[]string
-	list       			*list.Model
-	inputs     			textinput.Model
-	controller 			Controller
-	helpForInput		string
-	info	   			string
-	showInfoList		bool
+	songList     []string
+	list         *list.Model
+	inputs       textinput.Model
+	controller   Controller
+	helpForInput string
+	info         string
+	showInfoList bool
 
-	position   			int
-	choice     			string
-	quitting   			bool
-	title	   			string
+	position int
+	choice   string
+	quitting bool
+	title    string
 
-	songsAll			[][]string
-	localRemote			int
-	showAll				bool
+	songsAll    [][]string
+	localRemote int
+	showAll     bool
 
-	showList  			 bool
-	showInput			 bool
-	songListShoving 	 []string
-	songListSearching 	 []string
-	songListAll			 []string
-	preCommand			 string
-	songListPosition	 int
+	showList             bool
+	showInput            bool
+	songListShoving      []string
+	songListSearching    []string
+	songListAll          []string
+	preCommand           string
+	songListPosition     int
 	songListSixXPosition int
 
-	action				 int
+	action int
 }
 
 var (
@@ -103,7 +103,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 }
 
 func (m *model) Init() tea.Cmd {
-	return  nil
+	return nil
 }
 
 func RunModel(controller Controller, s []string) {
@@ -146,13 +146,13 @@ func showAll(m *model, msg tea.Msg) *model {
 			return m
 		case "down":
 			m.songListSixXPosition++
-			if len(m.songsAll[m.localRemote]) >= m.songListSixXPosition * 6 {
+			if len(m.songsAll[m.localRemote]) >= m.songListSixXPosition*6 {
 				i := 0
-				for ; i < len(m.songListShoving) && m.songListSixXPosition * 6 + i < len(m.songsAll[m.localRemote]); i++ {
-					m.songListShoving[i] = m.songsAll[m.localRemote][m.songListSixXPosition * 6 + i]
+				for ; i < len(m.songListShoving) && m.songListSixXPosition*6+i < len(m.songsAll[m.localRemote]); i++ {
+					m.songListShoving[i] = m.songsAll[m.localRemote][m.songListSixXPosition*6+i]
 				}
-				for ; i < 6 && m.songListSixXPosition * 6 + i < len(m.songsAll[m.localRemote]); i++ {
-					m.songListShoving = append(m.songListShoving, m.songsAll[m.localRemote][m.songListSixXPosition * 6 + i])
+				for ; i < 6 && m.songListSixXPosition*6+i < len(m.songsAll[m.localRemote]); i++ {
+					m.songListShoving = append(m.songListShoving, m.songsAll[m.localRemote][m.songListSixXPosition*6+i])
 				}
 				m.songListShoving = m.songListShoving[:i]
 			} else if m.localRemote == 0 {
@@ -173,22 +173,22 @@ func showAll(m *model, msg tea.Msg) *model {
 			m.songListSixXPosition--
 			if m.songListSixXPosition >= 0 {
 				i := 0
-				for ; i < len(m.songListShoving) && m.songListSixXPosition * 6 + i < len(m.songsAll[m.localRemote]); i++ {
-					m.songListShoving[i] = m.songsAll[m.localRemote][m.songListSixXPosition * 6 + i]
+				for ; i < len(m.songListShoving) && m.songListSixXPosition*6+i < len(m.songsAll[m.localRemote]); i++ {
+					m.songListShoving[i] = m.songsAll[m.localRemote][m.songListSixXPosition*6+i]
 				}
-				for ; i < 6 && m.songListSixXPosition * 6 + i < len(m.songsAll[m.localRemote]); i++ {
-					m.songListShoving = append(m.songListShoving, m.songsAll[m.localRemote][m.songListSixXPosition * 6 + i])
+				for ; i < 6 && m.songListSixXPosition*6+i < len(m.songsAll[m.localRemote]); i++ {
+					m.songListShoving = append(m.songListShoving, m.songsAll[m.localRemote][m.songListSixXPosition*6+i])
 				}
 				m.songListShoving = m.songListShoving[:i]
 			} else if m.localRemote == 1 {
 				m.localRemote--
 				m.songListSixXPosition = len(m.songsAll[m.localRemote]) / 6
 				i := 0
-				for ; i < len(m.songListShoving) && m.songListSixXPosition * 6 + i < len(m.songsAll[m.localRemote]); i++ {
-					m.songListShoving[i] = m.songsAll[m.localRemote][m.songListSixXPosition * 6 + i]
+				for ; i < len(m.songListShoving) && m.songListSixXPosition*6+i < len(m.songsAll[m.localRemote]); i++ {
+					m.songListShoving[i] = m.songsAll[m.localRemote][m.songListSixXPosition*6+i]
 				}
-				for ; i < 6 && m.songListSixXPosition * 6 + i < len(m.songsAll[m.localRemote]); i++ {
-					m.songListShoving = append(m.songListShoving, m.songsAll[m.localRemote][m.songListSixXPosition * 6 + i])
+				for ; i < 6 && m.songListSixXPosition*6+i < len(m.songsAll[m.localRemote]); i++ {
+					m.songListShoving = append(m.songListShoving, m.songsAll[m.localRemote][m.songListSixXPosition*6+i])
 				}
 				m.songListShoving = m.songListShoving[:i]
 			} else {
@@ -212,13 +212,13 @@ func showInfoList(m *model, msg tea.Msg) *model {
 			return m
 		case "down":
 			m.songListSixXPosition++
-			if m.songListSixXPosition * 10 < len(m.songList) {
+			if m.songListSixXPosition*10 < len(m.songList) {
 				i := 0
-				for ; i < len(m.songListShoving) && m.songListSixXPosition * 10 + i < len(m.songList); i++ {
-					m.songListShoving[i] = m.songList[m.songListSixXPosition * 10 + i]
+				for ; i < len(m.songListShoving) && m.songListSixXPosition*10+i < len(m.songList); i++ {
+					m.songListShoving[i] = m.songList[m.songListSixXPosition*10+i]
 				}
-				for ; i < 10 && m.songListSixXPosition * 10 + i < len(m.songList); i++ {
-					m.songListShoving = append(m.songListShoving, m.songList[m.songListSixXPosition * 10 + i])
+				for ; i < 10 && m.songListSixXPosition*10+i < len(m.songList); i++ {
+					m.songListShoving = append(m.songListShoving, m.songList[m.songListSixXPosition*10+i])
 				}
 				m.songListShoving = m.songListShoving[:i]
 			} else {
@@ -228,11 +228,11 @@ func showInfoList(m *model, msg tea.Msg) *model {
 			m.songListSixXPosition--
 			if m.songListSixXPosition >= 0 {
 				i := 0
-				for ; i < len(m.songListShoving) && m.songListSixXPosition * 10 + i < len(m.songList); i++ {
-					m.songListShoving[i] = m.songList[m.songListSixXPosition * 10 + i]
+				for ; i < len(m.songListShoving) && m.songListSixXPosition*10+i < len(m.songList); i++ {
+					m.songListShoving[i] = m.songList[m.songListSixXPosition*10+i]
 				}
-				for ; i < 10 && m.songListSixXPosition * 10 + i < len(m.songList); i++ {
-					m.songListShoving = append(m.songListShoving, m.songList[m.songListSixXPosition * 10 + i])
+				for ; i < 10 && m.songListSixXPosition*10+i < len(m.songList); i++ {
+					m.songListShoving = append(m.songListShoving, m.songList[m.songListSixXPosition*10+i])
 				}
 				m.songListShoving = m.songListShoving[:i]
 			} else {
@@ -260,10 +260,10 @@ func showInput(m *model, msg tea.Msg) *model {
 			case "enter":
 				if m.action == 1 {
 					if len(m.songListShoving) != 0 {
-						err := m.controller.AddSong(m.songListShoving[m.songListPosition - 1])
-						m.info = m.songListShoving[m.songListPosition - 1]
+						err := m.controller.AddSong(m.songListShoving[m.songListPosition-1])
+						m.info = m.songListShoving[m.songListPosition-1]
 						if err == nil {
-							m.info = fmt.Sprintf("Added %s", m.songListShoving[m.songListPosition - 1])
+							m.info = fmt.Sprintf("Added %s", m.songListShoving[m.songListPosition-1])
 						} else {
 							m.info = fmt.Sprintf("Error: %s", err.Error())
 						}
@@ -274,24 +274,24 @@ func showInput(m *model, msg tea.Msg) *model {
 					if len(m.songListShoving) != 0 {
 						err := m.controller.DeleteSong((6 * m.songListSixXPosition) + m.songListPosition)
 						if err == nil {
-							m.info = fmt.Sprintf("Deleted %s", m.songListShoving[m.songListPosition - 1])
+							m.info = fmt.Sprintf("Deleted %s", m.songListShoving[m.songListPosition-1])
 						} else {
 							m.info = fmt.Sprintf("Error: %s", err.Error())
 						}
-					 } else {
+					} else {
 						err := m.controller.DeleteSong(0)
 						if err == nil {
-							m.info = fmt.Sprintf("Deleted Deleted all songs from list")
+							m.info = fmt.Sprintf("Deleted all songs from list")
 						} else {
 							m.info = fmt.Sprintf("Error: %s", err.Error())
 						}
-					 }
+					}
 				} else if m.action == 3 {
 					//Не работает?
 					if len(m.songListShoving) != 0 {
-						err := m.controller.DeleteLocal(m.songListShoving[m.songListPosition - 1])
+						err := m.controller.DeleteLocal(m.songListShoving[m.songListPosition-1])
 						if err == nil {
-							m.info = fmt.Sprintf("Deleted local %s", m.songListShoving[m.songListPosition - 1])
+							m.info = fmt.Sprintf("Deleted local %s", m.songListShoving[m.songListPosition-1])
 						} else {
 							m.info = fmt.Sprintf("Error: %s", err.Error())
 						}
@@ -300,9 +300,9 @@ func showInput(m *model, msg tea.Msg) *model {
 					}
 				} else if m.action == 4 {
 					if len(m.songListShoving) != 0 {
-						err := m.controller.SaveSong(m.songListShoving[m.songListPosition - 1])
+						err := m.controller.SaveSong(m.songListShoving[m.songListPosition-1])
 						if err == nil {
-							m.info = fmt.Sprintf("Saved local %s", m.songListShoving[m.songListPosition - 1])
+							m.info = fmt.Sprintf("Saved local %s", m.songListShoving[m.songListPosition-1])
 						} else {
 							m.info = fmt.Sprintf("Error: %s", err.Error())
 						}
@@ -319,14 +319,14 @@ func showInput(m *model, msg tea.Msg) *model {
 			case "down":
 				m.songListPosition++
 				if m.songListPosition > len(m.songListShoving) {
-					if len(m.songListSearching) >= (m.songListSixXPosition + 1) * 6 + 1 {
+					if len(m.songListSearching) >= (m.songListSixXPosition+1)*6+1 {
 						m.songListSixXPosition++
 						i := 0
-						for ; i < len(m.songListShoving) && m.songListSixXPosition * 6 + i < len(m.songListSearching); i++ {
-							m.songListShoving[i] = m.songListSearching[m.songListSixXPosition * 6 + i]
+						for ; i < len(m.songListShoving) && m.songListSixXPosition*6+i < len(m.songListSearching); i++ {
+							m.songListShoving[i] = m.songListSearching[m.songListSixXPosition*6+i]
 						}
-						for ; i < 6 && m.songListSixXPosition * 6 + i < len(m.songListSearching); i++ {
-							m.songListShoving = append(m.songListShoving, m.songListSearching[m.songListSixXPosition * 6 + i])
+						for ; i < 6 && m.songListSixXPosition*6+i < len(m.songListSearching); i++ {
+							m.songListShoving = append(m.songListShoving, m.songListSearching[m.songListSixXPosition*6+i])
 						}
 						m.songListShoving = m.songListShoving[:i]
 					}
@@ -338,11 +338,11 @@ func showInput(m *model, msg tea.Msg) *model {
 					if m.songListSixXPosition > 0 {
 						m.songListSixXPosition--
 						i := 0
-						for ; i < len(m.songListShoving) && m.songListSixXPosition * 6 + i < len(m.songListSearching); i++ {
-							m.songListShoving[i] = m.songListSearching[m.songListSixXPosition * 6 + i]
+						for ; i < len(m.songListShoving) && m.songListSixXPosition*6+i < len(m.songListSearching); i++ {
+							m.songListShoving[i] = m.songListSearching[m.songListSixXPosition*6+i]
 						}
-						for ; i < 6 && m.songListSixXPosition * 6 + i < len(m.songListSearching); i++ {
-							m.songListShoving = append(m.songListShoving, m.songListSearching[m.songListSixXPosition * 6 + i])
+						for ; i < 6 && m.songListSixXPosition*6+i < len(m.songListSearching); i++ {
+							m.songListShoving = append(m.songListShoving, m.songListSearching[m.songListSixXPosition*6+i])
 						}
 						m.songListShoving = m.songListShoving[:i]
 						m.songListPosition = 6
@@ -362,11 +362,11 @@ func showInput(m *model, msg tea.Msg) *model {
 			}
 			m.songListSearching = s
 			i := 0
-			for ; i < len(m.songListShoving) && m.songListSixXPosition * 6 + i < len(m.songListSearching); i++ {
-				m.songListShoving[i] = m.songListSearching[m.songListSixXPosition * 6 + i]
+			for ; i < len(m.songListShoving) && m.songListSixXPosition*6+i < len(m.songListSearching); i++ {
+				m.songListShoving[i] = m.songListSearching[m.songListSixXPosition*6+i]
 			}
-			for ; i < 6 && m.songListSixXPosition * 6 + i < len(m.songListSearching); i++ {
-				m.songListShoving = append(m.songListShoving, m.songListSearching[m.songListSixXPosition * 6 + i])
+			for ; i < 6 && m.songListSixXPosition*6+i < len(m.songListSearching); i++ {
+				m.songListShoving = append(m.songListShoving, m.songListSearching[m.songListSixXPosition*6+i])
 			}
 			m.songListShoving = m.songListShoving[:i]
 			m.preCommand = command
@@ -404,12 +404,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h := showInfoList(m, msg)
 		if h != nil {
 			return m, nil
-		}	
+		}
 	} else if m.showInput {
 		h := showInput(m, msg)
 		if h != nil {
 			return m, nil
-		}	
+		}
 	} else {
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
@@ -447,7 +447,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.songListShoving = make([]string, 0, 6)
 					i := 0
 					for ; i < 6 && i < len(m.songListAll); i++ {
-						m.songListShoving  = append(m.songListShoving, m.songListAll[i])
+						m.songListShoving = append(m.songListShoving, m.songListAll[i])
 					}
 					m.songListShoving = m.songListShoving[:i]
 					m.songListSearching = m.songListAll
@@ -460,7 +460,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.list.Title = m.controller.GetCurrent()
 				case 1:
 					m.controller.PlaySong("")
-					m.info = fmt.Sprintf("Paused %s", m.controller.GetCurrent())
+					m.info = fmt.Sprintf("Playing %s", m.controller.GetCurrent())
 					m.list.Title = m.controller.GetCurrent()
 				case 2:
 					m.inputs.SetValue("")
@@ -546,7 +546,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.songListShoving = make([]string, 0, 6)
 					i := 0
 					for ; i < 6 && i < len(m.songListAll); i++ {
-						m.songListShoving  = append(m.songListShoving, m.songListAll[i])
+						m.songListShoving = append(m.songListShoving, m.songListAll[i])
 					}
 					m.songListShoving = m.songListShoving[:i]
 					m.songListSearching = m.songListAll
@@ -576,7 +576,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.songListShoving = make([]string, 0, 6)
 					i := 0
 					for ; i < 6 && i < len(m.songListAll); i++ {
-						m.songListShoving  = append(m.songListShoving, m.songListAll[i])
+						m.songListShoving = append(m.songListShoving, m.songListAll[i])
 					}
 					m.songListShoving = m.songListShoving[:i]
 					m.songListSearching = m.songListAll
@@ -600,7 +600,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.songListShoving = make([]string, 0, 6)
 					i := 0
 					for ; i < 6 && i < len(m.songListAll); i++ {
-						m.songListShoving  = append(m.songListShoving, m.songListAll[i])
+						m.songListShoving = append(m.songListShoving, m.songListAll[i])
 					}
 					m.songListShoving = m.songListShoving[:i]
 					m.songListSearching = m.songListAll
@@ -636,11 +636,11 @@ func (m *model) View() string {
 			s.WriteString("Remote: \n")
 		}
 		for i := 0; i < len(m.songListShoving); i++ {
-			s.WriteString(fmt.Sprintf("%d)", i + 1))
+			s.WriteString(fmt.Sprintf("%d)", i+1))
 			s.WriteString(m.songListShoving[i])
 			s.WriteRune('\n')
 		}
-		if len(m.songListShoving)== 0 {
+		if len(m.songListShoving) == 0 {
 			s.WriteString("List empty\n")
 		}
 		s.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color("#767676")).Width(30).Render("\nESC/q/Enter to back"))
@@ -651,7 +651,7 @@ func (m *model) View() string {
 			s := strings.Builder{}
 			s.WriteRune('\n')
 			for i, l := range m.songListShoving {
-				s.WriteString(fmt.Sprintf("%d)", i + 1))
+				s.WriteString(fmt.Sprintf("%d)", i+1))
 				s.WriteString(l)
 				s.WriteRune('\n')
 			}
@@ -664,17 +664,17 @@ func (m *model) View() string {
    %s
    %s
 		`,
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#FF06B7")).Width(40).Render(m.helpForInput),
-		m.inputs.View(),
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#767676")).Width(30).Render("Press Enter for continue ->"),)
+				lipgloss.NewStyle().Foreground(lipgloss.Color("#FF06B7")).Width(40).Render(m.helpForInput),
+				m.inputs.View(),
+				lipgloss.NewStyle().Foreground(lipgloss.Color("#767676")).Width(30).Render("Press Enter for continue ->"))
 		}
 		s := strings.Builder{}
 		s.WriteRune('\n')
 		for i, l := range m.songListShoving {
-			if i + 1 == m.songListPosition {
+			if i+1 == m.songListPosition {
 				s.WriteRune('>')
 			}
-			s.WriteString(fmt.Sprintf("%d)", i + 1))
+			s.WriteString(fmt.Sprintf("%d)", i+1))
 			s.WriteString(l)
 			s.WriteRune('\n')
 		}
@@ -684,10 +684,10 @@ func (m *model) View() string {
 %s
    %s
 		`,
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#FF06B7")).Width(40).Render(m.helpForInput),
-		m.inputs.View(),
-		s.String(),
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#767676")).Width(30).Render("Press Enter for continue ->"),)
+			lipgloss.NewStyle().Foreground(lipgloss.Color("#FF06B7")).Width(40).Render(m.helpForInput),
+			m.inputs.View(),
+			s.String(),
+			lipgloss.NewStyle().Foreground(lipgloss.Color("#767676")).Width(30).Render("Press Enter for continue ->"))
 	}
 	return m.info + "\n" + m.list.View()
 }

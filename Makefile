@@ -33,13 +33,11 @@ test			:
 	@echo "	Building Client tests"
 	@-docker build -t clienttest -f ./Client/Dockerfile_test ./Client &> /dev/null
 	@echo "	Running Client tests"
-	@docker run --name clitest clienttest
+	@docker run --rm --name clitest clienttest
 	@echo "	Building Server tests"
 	@-docker build -t servertest -f ./MyServer/Dockerfile_test ./MyServer &> /dev/null
 	@echo "	Running Server tests"
-	@docker run --name servtest servertest
-	@docker rm servtest &> /dev/null
-	@docker rm clitest &> /dev/null
+	@docker run --rm --name servtest servertest
 
 clean			:
 	-docker stop serv
