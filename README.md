@@ -19,7 +19,7 @@
       make clientLocal
     # Perform make to build and run project in containers
       make
-     ❗ Note: Music ifrom container may not always be displayed correctly ❗
+     ❗ Note: Music from container may not always be displayed correctly ❗
     # Clean up
       make fclean
     
